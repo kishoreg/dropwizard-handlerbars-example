@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>HandleBar Templating </title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <style>
+        #my-container {
+            width: 400px;
+            border: 1px solid grey;
+        }
+    </style>
+</head>
+
+<body>
+
+    </div>
+    <div id="student-container" class="table-responsive">
+    <div id="twitter-container" class="table-responsive">
+    <div id="simple-container" class="table-responsive">
+    </div>
+    <!--Handlebar templates start-->
+
+    <script id="entry-template" type="text/x-handlebars-template">
+        <div class="entry">
+            <h1>{{title}}</h1>
+            <div class="body">
+                {{body}}
+            </div>
+        </div>
+    </script>
+    <script id="twitter-template" type="text/x-handlebars-template">
+        <table>
+            <thead>
+                <th>Name</th>
+                <th>Job Title</th>
+                <th>Twitter</th>
+            </thead>
+            <tbody>
+                {{#users}}
+                <tr>
+                    <td>{{fullName person}}</td>
+                    <td>{{jobTitle}}</td>
+                    <td><a href="https://twitter.com/{{twitter}}">@{{twitter}}</a></td>
+                </tr>
+                {{/users}}
+            </tbody>
+        </table>
+    </script>
+    <script id="student-template" type="text/x-handlebars-template">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Mark</th>
+                    <th>Subject</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each students}}
+                <tr>
+                    <td>{{ this.name }}</td>
+                    <td>{{ this.mark }}</td>
+                    <td>{{ this.subject }}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </script>
+
+    <!--Handlebar templates end-->
+    <script src="lib/jquery-1.10.2.min.js"></script>
+    <script src="http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars-v4.0.5.js"></script>
+    <script src="js/my-script.js"></script>
+</body>
+
+</html>
