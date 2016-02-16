@@ -9,8 +9,8 @@ var STUDENT_METHOD = {
 
         var template = Handlebars.compile(templateSource)
         console.log('json' + resJSON)
-
-        var html = template(resJSON)
+var obj = eval("(" + resJSON + ')');
+        var html = template(obj)
 
         $('#student-container').html(html);
         console.log($("#student-template"))
@@ -30,19 +30,17 @@ var STUDENT_METHOD = {
 var TWITTER_METHOD = {
 
     handlerData: function(resJSON) {
-
         var templateSource = $("#twitter-template").html()
-
-        var template = Handlebars.compile(templateSource);
-
+        var template = Handlebars.compile(templateSource)
         Handlebars.registerHelper('fullName', function(person) {
             return person.firstName + " " + person.lastName;
         });
-        console.log(resJSON)
-
-        var html = template(resJSON)
+        console.log('json' + resJSON)
+      var obj = eval("(" + resJSON + ')');
+        var html = template(obj)
 
         $('#twitter-container').html(html);
+        console.log($("#student-template"))
         console.log(templateSource)
         console.log(html)
     },
@@ -69,9 +67,10 @@ var SIMPLE_METHOD = {
         console.log('resJSON');
         console.log(resJSON)
         //THIS DOES NOT WORK
-        var html = template(resJSON);
+        var obj = JSON.parse(resJSON);
+        var html = template(obj);
         //THIS WORK
-        var html = template(context);
+        //var html = template(context);
         
         $('body').append(html);
 
@@ -81,7 +80,6 @@ var SIMPLE_METHOD = {
             url: "data/simpleData.json",
             method: 'get',
             success: this.handlerData
-
         })
 
     }
@@ -91,6 +89,6 @@ $(document).ready(function() {
 
     SIMPLE_METHOD.loadSimpleData();
 
-//    STUDENT_METHOD.loadStudentData();
-  //  TWITTER_METHOD.loadTwitterData();
+    STUDENT_METHOD.loadStudentData();
+    TWITTER_METHOD.loadTwitterData();
 });
