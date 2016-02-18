@@ -1,77 +1,121 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>HandleBar Templating </title>
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <style>
-        #my-container {
-            width: 400px;
-            border: 1px solid grey;
-        }
-    </style>
-</head>
-
-<body>
-
-    </div>
-    <div id="student-container" class="table-responsive"> </div>
-    <div id="twitter-container" class="table-responsive"> </div>
-    <div id="simple-container" class="table-responsive">
-    </div>
-    <!--Handlebar templates start-->
-
-    <script id="entry-template" type="text/x-handlebars-template">
-        <div class="entry">
-            <h1>{{title}}</h1>
-            <div class="body">
-                {{body}}
-            </div>
-        </div>
-    </script>
-    <script id="twitter-template" type="text/x-handlebars-template">
-        <table class="table table-striped">
-            <thead>
-                <th>Name</th>
-                <th>Job Title</th>
-                <th>Twitter</th>
-            </thead>
-            <tbody>
-                {{#users}}
-                <tr>
-                    <td>{{fullName person}}</td>
-                    <td>{{jobTitle}}</td>
-                    <td><a href="https://twitter.com/{{twitter}}">@{{twitter}}</a></td>
-                </tr>
-                {{/users}}
-            </tbody>
-        </table>
-    </script>
-    <script id="student-template" type="text/x-handlebars-template">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Mark</th>
-                    <th>Subject</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each students}}
-                <tr>
-                    <td>{{ this.name }}</td>
-                    <td>{{ this.mark }}</td>
-                    <td>{{ this.subject }}</td>
-                </tr>
-                {{/each}}
-            </tbody>
-        </table>
-    </script>
-
+    <!--<link rel="stylesheet" href="css/bootstrap.css">-->
+    <link rel="stylesheet" href="css/reset.css"/>
+    <link rel="stylesheet" href="css/uikit/uikit.css"/>
+    <link rel="stylesheet" href="css/main.css"/>
     <!--Handlebar templates end-->
     <script src="lib/jquery-1.10.2.min.js"></script>
     <script src="http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars-v4.0.5.js"></script>
-    <script src="js/my-script.js"></script>
+    <script src="js/vendor/vendorplugins.compiled.js"></script>
+    <script src="js/vendor/jquery.flot.min.js"></script>
+    <script src="js/utility.js"></script>
+    <script src="js/dashboard.js"></script>
+    <!--<script src="js/my-script.js"></script>-->
+</head>
+
+<body>
+<form id="dashboard-form">
+    <ul id="dashboard-form-ul">
+        <li class="dashboard-form-li">
+            <label class="dashboard-form-label">Dataset
+            </label>
+        </li>
+        <li class="dashboard-form-li">
+            <label class="dashboard-form-label">Dashboard
+            </label>
+        </li>
+        <li class="dashboard-form-li">
+             <label class="dashboard-form-label">Metric
+            </label>
+        </li>
+        <li class="dashboard-form-li">
+            <label class="dashboard-form-label">Dimension
+            </label>
+        </li>
+        <li class="dashboard-form-li">
+            <label class="dashboard-form-label">Filters
+            </label>
+        </li>
+    </ul>
+</form>
+<div id="chart-area" class="uk-clearfix">
+    <div id="chart-control">
+    </div>
+    <div id="overview-area"  class="uk-float-right">
+        <section id="custom-funnel-section" style="margin: 0;">
+            <table id="funnels-table" class="uk-table dimension-view-overview-rendered">
+                <script id="funnels-table-template" type="text/x-handlebars-template">
+                    <thead>
+                    <!-- Time row -->
+                    <tr>
+                        <th class="border-left">Date</th>
+
+                        {{#each timebuckets}}
+                        <th class="funnel-table-time border-left" currentUTC="{{this.[1]}}" title="{{this.[0]}}">{{this.[1]}}</th>
+                        {{/each}}
+                    </tr>
+                    <!-- Subheader -->
+                    <tr  class="subheader hidden">
+                        <th></th>
+                        {{#each timebuckets}}
+                        <th class="border-left">Baseline</th>
+                        <th>Current</th>
+                        <th>Ratio</th>
+                        {{/each}}
+                    </tr>
+
+                    </thead>
+
+                    <!-- Table of discrete values -->
+                    <tbody class="discrete-values">
+                    {{#each metrics}}
+                    <tr class="data-row">
+                        <td class="metric-label" title="{{this.name}}" style="width:145px;">{{displayAlias this.name this.alias}}</td>
+                        {{#each data}}
+                        <td class="{{classify @index}}" value="{{this}}">{{displayRatio this @index}}</td>  <!--title="Baseline Value: {{!--{{baselineValue}} Current Value: {{currentValue}} --}}"-->
+                        {{/each}}
+                    </tr>
+                    {{/each}}
+                    </tbody>
+
+
+                    <!-- Table of cumulative values -->
+                    <tbody class="cumulative-values hidden">
+                    {{#each metrics}}
+                    <tr class="data-row">
+                        <td class="metric-label" title="{{this.name}}" style="width:145px;">{{displayAlias this.name this.alias}}</td>
+                        {{#each cumulativeData}}
+                        <td class="{{classify @index}}" value="{{this}}">{{displayRatio this @index}}</td>  <!--title="Baseline Value: {{!--{{baselineValue}} Current Value: {{currentValue}} --}}"-->
+                        {{/each}}
+                    </tr>
+                    {{/each}}
+                    </tbody>
+                </script>
+            </table>
+        </section>
+
+        <div id="funnel-loader" class="loader" style="height: 50px; margin:0px 50%; background-color: rgba(255,0,0,0.5);">
+            <i class="uk-icon-spinner uk-icon-spin uk-icon-large" style="margin:20px 50%;"></i>
+        </div>
+    </div>
+</div>
+
+<div id="metric-timeseries-area">
+    <div id="metric-time-series-placeholder" class="uk-display-inline-block" style="width: 95%; height: 300px;"></div>
+    <ul id="metric-time-series-legend">
+        <script id="metric-time-series-legend-template" type="text/x-handlebars-template">
+            {{#each metrics}}
+            <li class="uk-display-inline-block" ><input type="checkbox" class="time-series-metric-checkbox" value="{{this.name}}" color="{{colorByName this.name}}"><div class="legend-color uk-display-inline-block" style="width: 10px; height: 10px; background: {{colorByName this.name}}"></div> <label>{{displayAlias this.name this.alias}}</label></li>
+            {{/each}}
+        </script>
+    </ul>
+</div>
+
+
+
 </body>
 
 </html>
