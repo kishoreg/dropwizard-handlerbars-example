@@ -1,23 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html style="height:100%">
 <head>
     <title>HandleBar Templating </title>
     <link rel="stylesheet" href="css/reset.css"/>
     <!--<link rel="stylesheet" href="css/uikit/uikit.css"/>-->
     <link rel="stylesheet" href="css/uikit/uikit.almost-flat.min.css"/>
+    <link rel="stylesheet" href="css/uikit/components/sticky.almost-flat.min.css"/>
+    <link rel="stylesheet" href="css/uikit/components/sortable.almost-flat.min.css"/>
+    <link rel="stylesheet" href="css/uikit/components/autocomplete.almost-flat.min.css"/>
+    <link rel="stylesheet" href="css/uikit/components/form-select.almost-flat.min.css"/>
+    <link rel="stylesheet" href="css/uikit/components/datepicker.almost-flat.min.css"/>
+    <link rel="stylesheet" href="css/datatables.min.css"/>
     <link rel="stylesheet" href="css/main.css"/>
-    <!--Handlebar templates end-->
-    <script src="lib/jquery-1.10.2.min.js"></script>
-    <script src="js/uikit/uikit.min.js"></script>
+
+
+    <!-- JQuery Google API -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    <!-- Fallback in case Google API was not available for the users browser -->
+    <script>
+        if (typeof jQuery === 'undefined') {
+            document.write(unescape('%3Cscript%20src%3D%22lib/jquery-1.10.2.min.js%22%3E%3C/script%3E'));
+        }
+    </script>
+    <!--<script src="lib/jquery-1.10.2.min.js"></script>-->
     <script src="http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars-v4.0.5.js"></script>
-    <script src="js/vendor/vendorplugins.compiled.js"></script>
-    <script src="js/flot/jquery.flot.min.js"></script>
-    <script src="js/utility.js"></script>
-    <script src="js/dashboard.js"></script>
+
+    <script src="js/vendor/vendorplugins.compiled.js" defer></script>
+    <script src="js/uikit/uikit.min.js" defer></script>
+    <script src="js/uikit/core/dropdown.min.js" defer></script>
+    <!--Compiled uikit components as used-components.compiled.js consists of: sticky.min.js, datepicker.min.js, timepicker.min.js,
+    autocomplete.min.js, sortable.min.js, form-select.min.js-->
+    <script src="js/uikit/components/used-components.compiled.js" defer></script>
+
+    <script src="js/flot/jquery.flot.min.js" defer></script>
+
+    <script src="js/utility.js" defer></script>
+    <script src="js/dashboard.js" defer></script>
     <!--<script src="js/my-script.js"></script>-->
 </head>
 
-<body>
+<body style="height:100%">
 <form id="dashboard-form">
     <ul id="dashboard-form-ul">
         <li class="dashboard-form-li">
@@ -77,8 +100,8 @@
         </li>
     </ul>
 </form>
-<div id="chart-area" class="uk-clearfix">
-    <div id="chart-control">
+<div id="chart-area" class="uk-clearfix" style="height:100%">
+    <div id="chart-control" style="height:97%">
         <div id="advanced-settings-entry" style="height:44px">
             <span>Advanced Settings <i class="uk-icon-gear"></i></span>
         </div>
@@ -87,69 +110,19 @@
             </p>
         </div>
         <section id="chart-types">
-            <p id="chart-types-header">Views</p>
+            <p id="chart-types-header">Charts</p>
             <div  class="chart-selections" data-uk-button-radio="">
-                <button class="uk-button uk-form-controls-text uk-active" type="button">Overview</button>
-                <button class="uk-button uk-form-controls-text" type="button">Heatmap</button>
-                <button class="uk-button uk-form-controls-text" type="button">Contributors</button>
+                <button id="overview-btn" class="uk-button uk-form-controls-text uk-active" type="button">Overview</button>
+                <button id="heatmap-btn" class="uk-button uk-form-controls-text" type="button">Heatmap</button>
+                <button id="contributors-btn" class="uk-button uk-form-controls-text" type="button">Contributors</button>
             </div>
         </section>
-    </div><div id="overview-area"  class="uk-float-right">
-        <section id="custom-funnel-section" style="margin: 0;">
-            <table id="funnels-table" class="uk-table dimension-view-overview-rendered">
-                <script id="funnels-table-template" type="text/x-handlebars-template">
-                    <thead>
-                    <!-- Time row -->
-                    <tr>
-                        <th class="border-left">Date</th>
+    </div><div id="overview-area"  class="uk-float-right" style="position: relative; height: 100%;">
 
-                        {{#each timebuckets}}
-                        <th class="funnel-table-time border-left" currentUTC="{{this.[1]}}" title="{{this.[0]}}">{{this.[1]}}</th>
-                        {{/each}}
-                    </tr>
-                    <!-- Subheader -->
-                    <tr  class="subheader hidden">
-                        <th></th>
-                        {{#each timebuckets}}
-                        <th class="border-left">Baseline</th>
-                        <th>Current</th>
-                        <th>Ratio</th>
-                        {{/each}}
-                    </tr>
-
-                    </thead>
-
-                    <!-- Table of discrete values -->
-                    <tbody class="discrete-values">
-                    {{#each metrics}}
-                    <tr class="data-row">
-                        <td class="metric-label" title="{{this.name}}" style="width:145px;">{{displayAlias this.name this.alias}}</td>
-                        {{#each data}}
-                        <td class="{{classify @index}}" value="{{this}}">{{displayRatio this @index}}</td>  <!--title="Baseline Value: {{!--{{baselineValue}} Current Value: {{currentValue}} --}}"-->
-                        {{/each}}
-                    </tr>
-                    {{/each}}
-                    </tbody>
-
-
-                    <!-- Table of cumulative values -->
-                    <tbody class="cumulative-values hidden">
-                    {{#each metrics}}
-                    <tr class="data-row">
-                        <td class="metric-label" title="{{this.name}}" style="width:145px;">{{displayAlias this.name this.alias}}</td>
-                        {{#each cumulativeData}}
-                        <td class="{{classify @index}}" value="{{this}}">{{displayRatio this @index}}</td>  <!--title="Baseline Value: {{!--{{baselineValue}} Current Value: {{currentValue}} --}}"-->
-                        {{/each}}
-                    </tr>
-                    {{/each}}
-                    </tbody>
-                </script>
-            </table>
-        </section>
-
-        <div id="funnel-loader" class="loader" style="height: 50px; margin:0px 50%; background-color: rgba(255,0,0,0.5);">
-            <i class="uk-icon-spinner uk-icon-spin uk-icon-large" style="margin:20px 50%;"></i>
+        <div id="funnel-loader" class="loader hidden" style="height: 100%; width: 102%; position: absolute; top: 0; left: -23px; margin:0px; background-color: #d1d1d1; opacity: 0.5;">
+            <i class="uk-icon-spinner uk-icon-spin uk-icon-large" style="position: absolute; top: 50%; left: 50%;"></i>
         </div>
+
     </div>
 </div>
 <section id="chart-footer">
@@ -159,14 +132,13 @@
                 <p></p>
             </div>
 
-
             <div class="uk-display-inline-block">
                 <label class="uk-form-label">
                     Date
                 </label>
                 <div class="uk-form-icon">
                     <i class="uk-icon-calendar"></i>
-                    <input id="time-input-form-current-date" type="text" data-uk-datepicker="{weekstart:0,format:'YYYY-MM-DD'}">
+                    <input id="time-input-form-current-date" type="text" data-uk-datepicker="{pos:'top', weekstart:0, format:'YYYY-MM-DD'}">
                 </div>
             </div>
             <div id="config-form-time-picker-box" class="uk-display-inline-block hidden">
@@ -192,8 +164,8 @@
                 <label class="uk-form-label">Compare to
                 </label>
                 <div class="uk-button uk-form-select" data-uk-form-select="">
-                    <!--<span>Wo2W</span>
-                    <i class="uk-icon-caret-down"></i>-->
+                    <span>Wo2W</span>
+                    <i class="uk-icon-caret-down"></i>
                     <select id="time-input-comparison-size">
                         <option class="uk-button" unit="WoW" value="7">WoW</option>
                         <option class="uk-button" unit="Wo2W" value="14">Wo2W</option>
@@ -209,7 +181,9 @@
         </div>
     </form>
 </section>
-<div id="metric-timeseries-area" class="hidden">
+
+
+<section id="metric-timeseries-area" class="hidden">
     <script id="metric-time-series-legend-template" type="text/x-handlebars-template">
     <div id="metric-time-series-placeholder" class="uk-display-inline-block" style="width: 95%; height: 300px;"></div>
     <ul id="metric-time-series-legend">
@@ -220,7 +194,210 @@
 
     </ul>
     </script>
-</div>
+</section>
+
+<section id="custom-funnel-section" class="hidden" style="margin: 0;">
+    <script id="funnels-table-template" type="text/x-handlebars-template">
+    <table id="funnels-table" class="uk-table dimension-view-overview-rendered">
+
+            <thead>
+            <!-- Time row -->
+            <tr>
+                <th class="border-left">Date</th>
+
+                {{#each timebuckets}}
+                <th class="funnel-table-time border-left" currentUTC="{{this.[1]}}" title="{{this.[0]}}">{{this.[1]}}</th>
+                {{/each}}
+            </tr>
+            <!-- Subheader -->
+            <tr  class="subheader hidden">
+                <th></th>
+                {{#each timebuckets}}
+                <th class="border-left">Baseline</th>
+                <th>Current</th>
+                <th>Ratio</th>
+                {{/each}}
+            </tr>
+
+            </thead>
+
+            <!-- Table of discrete values -->
+            <tbody class="discrete-values">
+            {{#each metrics}}
+            <tr class="data-row">
+                <td class="metric-label" title="{{this.name}}" style="width:145px;">{{displayAlias this.name this.alias}}</td>
+                {{#each data}}
+                <td class="{{classify @index}}" value="{{this}}">{{displayRatio this @index}}</td>  <!--title="Baseline Value: {{!--{{baselineValue}} Current Value: {{currentValue}} --}}"-->
+                {{/each}}
+            </tr>
+            {{/each}}
+            </tbody>
+
+
+            <!-- Table of cumulative values -->
+            <tbody class="cumulative-values hidden">
+            {{#each metrics}}
+            <tr class="data-row">
+                <td class="metric-label" title="{{this.name}}" style="width:145px;">{{displayAlias this.name this.alias}}</td>
+                {{#each cumulativeData}}
+                <td class="{{classify @index}}" value="{{this}}">{{displayRatio this @index}}</td>  <!--title="Baseline Value: {{!--{{baselineValue}} Current Value: {{currentValue}} --}}"-->
+                {{/each}}
+            </tr>
+            {{/each}}
+            </tbody>
+
+    </table>
+    </script>
+</section>
+
+
+
+<section id="contributors-section" width="100%">
+    <script id="contributors-table-template" type="text/x-handlebars-template" >
+        {{#with data}}
+        {{#each metrics}}
+
+        <div class="metric-section-wrapper" rel="{{this.name}}">
+            <h2>{{displayAlias this.name this.alias}}</h2>
+            {{#each this/dimensions}}
+            <div class="section-wrapper" rel="{{this.dimensionName}}" style="vertical-align: top; ">
+                <h2> {{displayAlias this.dimensionName this.dimensionAlias}}</h2>
+
+                <div class="dimension-timeseries-section" dimension="{{this.dimensionName}}">
+                    <div class="uk-button-group dimension-timeseries-toggle-buttons uk-display-block" data-uk-button style="margin-bottom: 15px;">
+                        <button class="uk-button dimension-timeseries-mode" id="dimension-timeseries-total-change-percent" mode="0">
+                            <i class="uk-icon-eye-slash"></i> Value
+                        </button>
+                        <button class="uk-button dimension-timeseries-mode" id="dimension-timeseries-total-percent" mode="1">
+                            <i class="uk-icon-eye-slash"></i> Contribution to Total (%)
+                        </button>
+                    </div>
+
+
+                    <div class="dimension-timeseries-legend"  dimension="{{this.dimensionName}}" mode="0" >
+                    </div><div class="dimension-timeseries" class="uk-display-inline-block"  dimension="{{this.dimensionName}}" mode="0"></div>
+                    <div class="dimension-time-series-tooltip" dimension="{{this.dimensionName}}" mode="0"></div>
+
+                    <div class="dimension-timeseries-legend uk-display-inline-block"  dimension="{{this.dimensionName}}" mode="1">
+
+                    </div><div class="dimension-timeseries" class="uk-display-inline-block"  dimension="{{this.dimensionName}}" mode="1"></div>
+                    <div class="dimension-time-series-tooltip" dimension="{{this.dimensionName}}" mode="1"></div>
+                </div>
+                <table id="contributors-view-{{../name}}" class="uk-table contributors-table fixed-table-layout" cell-spacing="0" width="100%">
+                    <thead>
+                    <!-- Time row-->
+                    <tr>
+                        <th class="contributors-table-date border-left" colspan="2" currentUTC="{{@root.currentUTCDate}}" baselineUTC="{{@root.baselineUTCDate}}"></th>
+
+                        {{#each @root/data/timebuckets}}
+                        <th class="contributors-table-time border-left" currentUTC="{{this.[1]}}" title="{{this.[0]}}">{{this.[1]}}</th>
+                        {{/each}}
+                    </tr>
+                    <!--Subheader-->
+                    <tr class="subheader hidden">
+                        <th colspan="2" class="divider-cell"></th>
+                        {{#each @root/data/timebuckets}}
+                        <th class="details-cell hidden">Baseline</th>
+                        <th class="details-cell hidden">Current</th>
+                        <th class="heat-map-cell">Ratio</th>
+                        {{/each}}
+                    </tr>
+                    <!-- Metric total row discrete values -->
+                    <tr class="discrete-values">
+                        <td colspan="2" class="divider-cell"></td>
+                        {{#with @../this}}
+                        {{#each data}}
+                        <td class="{{classify @index}}" value="{{this}}">{{displayRatio this @index}}</td>
+                        {{/each}}
+                        {{/with}}
+                    </tr>
+                    <!-- Metric total row cumulative values -->
+                    <tr class="cumulative-values hidden">
+                        <td colspan="2" class="divider-cell"></td>
+                        {{#with @../this}}
+                        {{#each cumulativeData}}
+                        <td class="{{classify @index}}" value="{{this}}">{{displayRatio this @index}}</td>
+                        {{/each}}
+                        {{/with}}
+                    </tr>
+
+                    <!-- Dimension total row discrete values-->
+                    <tr class="discrete-values sum-row">
+                        <th class="select_all_cell"><input class="select_all_checkbox" value="1" type="checkbox" checked></th>
+                        <th class="hidden"></th>
+                        <th class="row-title"> Total:</th>
+                        {{#each @root/data/timebuckets}}
+                        <th class="details-cell hidden">total discrete value will come from JS</th>
+                        <th class="details-cell hidden"></th>
+                        <th class="heat-map-cell"></th>
+                        {{/each}}
+                    </tr>
+
+                    <!-- Dimension total row cumulative values-->
+                    <tr class="cumulative-values sum-row hidden">
+                        <th class="select_all_cell"><input class="select_all_checkbox" value="1" type="checkbox" checked></th>
+                        <th class="hidden"></th>
+                        <th class="row-title"> Total:</th>
+                        {{#each @root/data/timebuckets}}
+                        <th class="details-cell hidden">total cumulative value will come from JS</th>
+                        <th class="details-cell hidden"></th>
+                        <th class="heat-map-cell"></th>
+                        {{/each}}
+                    </tr>
+
+                    <!-- Divider row -->
+                    <tr class="divider-row">
+                        <td colspan="5"><h3>{{displayAlias this.dimensionName this.dimensionAlias}}</h3>
+                        </td>
+                    </tr>
+                    </thead>
+                    <tbody class="contributor-tabular-section">
+
+                    <!-- Table row dimension  discrete values-->
+                    {{#each dimensionValues}}
+                    <tr class="data-row discrete-values">
+                        <td class="checkbox-cell"><input value="1" type="checkbox" checked></td>
+                        <td class="dimension dimension-cell hidden">{{displayAlias ../dimensionName ../dimensionAlias}}</td>
+                        <td class="dimension-value-cell">{{displayDimensionValue dimValue}} </td>
+                        {{#each data}}
+
+                        <td class="{{classify @index}}" value="{{this}}">
+                            {{this}}
+
+
+                        </td>
+                        {{/each}}
+                    </tr>
+                    {{/each}}
+
+
+                    <!-- Table row dimension  cumulative values-->
+                    {{#each dimensionValues}}
+                    <tr class="data-row cumulative-values hidden" dimension="{{../dimensionName}}">
+                        <td class="checkbox-cell"><input value="1" type="checkbox" checked></td>
+                        <td class="dimension dimension-cell hidden">{{../dimensionName}}</td>
+                        <td class="dimension-value-cell">{{displayDimensionValue dimValue}} </td>
+                        {{#each cumulativeData}}
+                        <td class="{{classify @index}}" value="{{this}}">
+                            {{this}}
+                        </td>
+                        {{/each}}
+                    </tr>
+                    {{/each}}
+
+                    </tbody>
+                </table>
+                {{/each}}
+
+
+
+            </div>  <!-- end of dimension wrapper -->
+
+        </div>  <!-- end of metric wrapper -->
+        {{/each}}
+        {{/with}}
+    </script>
+</section>
 </body>
 
 </html>

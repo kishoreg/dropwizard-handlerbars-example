@@ -76,6 +76,31 @@ $(document).ready(function() {
         ]
     }
 
+    TestDB.testData3 = {"funnelName": "Member_2_Guest_Full_Funnel",
+        "timebuckets" :[["2015-11-03T08:00:00.000Z","2015-11-10T08:00:00.000Z"], ["2015-11-03T09:00:00.000Z","2015-11-10T09:00:00.000Z"], ["2015-11-03T10:00:00.000Z","2015-11-10T10:00:00.000Z"], ["2015-11-03T11:00:00.000Z","2015-11-10T11:00:00.000Z"]],
+        "metrics" : [
+            {"name": 'totalFlows', alias: '', "data": [ 2209512, 1877339, -0.15, 2308018, 1980814, -0.14, 2390594, 2016011,-0.15, 2630678, 2167482, -0.17 ], "cumulativeData": [ 2209512, 1877339, -0.15, 4517530, 3858153, -0.14,  6908124, 5874164, -0.15, 9538802, 8041646, -0.15],
+                "dimensions": [
+                    {"dimensionName":'pageKey', "dimensionAlias":'',
+                        "dimensionValues":[
+                            /* {dimValue:"?", "data": [ baseline value of 1st timebucket,current value of 1st timebucket, delta ratio, ... baseline value of n-th timebucket,current value of n-th timebucket,delta ratio], "cumulativeData": [baseline value of 1st timebucket, current value of 1st timebucket,delta ratio, ... cumulated baseline value of n-th timebucket,cumulated current value of n-th timebucket,delta ratio]
+                             */
+                            {dimValue:"abook-import-impression-submit", "data": [ 902955,893753,-0.1, 971624, 964902, -0.007,963547,954101,-0.1, 997495, 989734, -0.008], "cumulativeData": [ 902955,893753,-0.01, 1874579,1858655,-0.008, 2838126,2812756,-0.009, 3835621, 3802490, -0.009], "contribution_to_total": [47.6,48.7,47.3,45.6], "cumulative_contribution_to_total" : [47.6,37.8, 47.9, 39.9]},
+                            {dimValue:"?", "data": [ 1306557,983586,-0.247,1336394,1015912,-0.24,1427047,1061910,-0.256,1633183,1177748,-0.279], "cumulativeData": [ 1306557,983586,-0.247, 2642951, 1999498,-0.243, 4069998,3061408,-0.248, 5703181,4239156,-0.257 ], "contribution_to_total": [52.4, 51.3, 52.7, 54.4], "cumulative_contribution_to_total" : [52.4,62.2,52.1,61.1]}
+                        ]
+                    },
+                    {"dimensionName":'sourceApp', "dimensionAlias":'',
+                        "dimensionValues":[
+                            /* {dimValue:"?", "data": [ baseline value of 1st timebucket,current value of 1st timebucket, delta ratio, ... baseline value of n-th timebucket,current value of n-th timebucket,delta ratio], "cumulativeData": [baseline value of 1st timebucket, current value of 1st timebucket,delta ratio, ... cumulated baseline value of n-th timebucket, cumulated current value of n-th timebucket,delta ratio]
+                             */
+                            {dimValue:"voyager", "data": [ 902955,893753,-0.1, 971624, 964902, -0.007,963547,954101,-0.1, 997495, 989734, -0.008], "cumulativeData": [ 902955,893753,-0.01, 1874579,1858655,-0.008, 2838126,2812756,-0.009, 3835621, 3802490, -0.009], "contribution_to_total": [50,45,5,48]},
+                            {dimValue:"?", "data": [ 1306557,983586,-0.247,1336394,1015912,-0.24,1427047,1061910,-0.256,1633183,1177748,-0.279], "cumulativeData": [ 1306557,983586,-0.247, 2642951, 1999498,-0.243, 4069998,3061408,-0.248, 5703181,4239156,-0.257 ], "contribution_to_total": [50,65,95,52]}
+                        ]
+                    }
+                ]
+            }]
+    };
+
     /* --- 1) Register Handelbars helpers --- */
     Handlebars.registerHelper('colorByName', function(name) {
         //Assign a line color to each metric on the time-series by turn the name into hexadecimal colorcode
@@ -120,6 +145,10 @@ $(document).ready(function() {
     var source_funnels_table = $("#funnels-table-template").html();
     var template_funnels_table = Handlebars.compile(source_funnels_table);
 
+
+    var source_contributors_table = $("#contributors-table-template").html();
+    var template_contributors_table = Handlebars.compile(source_contributors_table);
+
     /* Pull the funnel table data of the default or selected funnel */
 
     /* uncomment the following ajax call once API endpoint is ready*/
@@ -145,11 +174,12 @@ $(document).ready(function() {
     function ajaxTemporary(data) {
         /* Handelbars template for funnel table */
         var result_funnels_template = template_funnels_table(data)
-        $("#funnels-table").html(result_funnels_template);
+        $("#overview-area").html(result_funnels_template);
 
         calcHeatMapBG();
         transformUTCToTZ();
     }
+
     ajaxTemporary(TestDB.testData2)
 
 
@@ -167,6 +197,27 @@ $(document).ready(function() {
             transformUTCToTZTime(cell, dateTimeFormat);
         });
     }
+
+    $("#overview-btn").on("click", function(){
+        /* Handelbars template for funnel table */
+        var result_funnels_template = template_funnels_table(TestDB.testData1)
+        $("#overview-area").html(result_funnels_template);
+        calcHeatMapBG();
+        transformUTCToTZ();
+
+    })
+
+    $("#heatmap-btn").on("click", function(){
+        //todo
+    })
+
+    $("#contributors-btn").on("click", function(){
+        var result_contributors_template = template_contributors_table(TestDB.testData3)
+        $("#overview-area").html(result_contributors_template);
+
+    })
+
+
 
 
 
