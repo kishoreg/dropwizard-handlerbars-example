@@ -49,13 +49,25 @@
             <div data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true" class="uk-button-group uk-display-inline-block">
                 <button class="uk-button">abook</button>
                 <button class="uk-button uk-button-primary" type="button"><i class="uk-icon-caret-down"></i></button>
-                <div class="uk-dropdown uk-dropdown-small uk-dropdown-bottom" style="top: 30px; left: 0px;">
+
+                <!-- Form select
+                <div id="landing-collection" class="uk-button uk-form-select" data-uk-form-select="">
+                    <span></span>
+                    <i class="uk-icon-caret-down"></i>
+                    <script id="collections-template" type="text/x-handlebars-template">
+                    <select id="time-input-comparison-size">
+                        <option class="uk-button" value="{{this}}">{{this}}</option>
+                    </select>
+                    </script>
+                </div>-->
+                <div id="landing-collection" class="uk-dropdown uk-dropdown-small uk-dropdown-bottom" style="top: 30px; left: 0px;">
+                    <script id="collections-template" type="text/x-handlebars-template">
                     <ul class="uk-nav uk-nav-dropdown">
-                        <li><a href="#"> abook</a></li>
-                        <li class="uk-nav-divider"></li>
-                        <li><a href="#">kbmi</a></li>
-                        <li><a href="#"> ads</a></li>
+                        {{#each this}}
+                        <li class="collection-option" value="{{this}}"><a href="#">{{this}}</a></li>
+                        {{/each}}
                     </ul>
+                    </script>
                 </div>
             </div>
         </li>
@@ -118,7 +130,7 @@
             </div>
         </section>
     </div><div id="overview-area"  class="uk-float-right" style="position: relative; height: 100%;">
-
+        <div id="error"></div>
         <div id="funnel-loader" class="loader hidden" style="height: 100%; width: 102%; position: absolute; top: 0; left: -23px; margin:0px; background-color: #d1d1d1; opacity: 0.5;">
             <i class="uk-icon-spinner uk-icon-spin uk-icon-large" style="position: absolute; top: 50%; left: 50%;"></i>
         </div>
