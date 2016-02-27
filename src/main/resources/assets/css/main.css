@@ -5,16 +5,11 @@ ul, ol {
     padding-left: 0px;
 }
 
-#chart-types button{
-    min-width:105px;
-    margin: 5px;
-}
-
 .hidden {
     display: none;
 }
 
-#dashboard-form{
+#dashboard-settings{
     width: 100%;
     margin: 15px 0 0 0;
     padding: 0;
@@ -23,13 +18,13 @@ ul, ol {
     box-sizing: border-box;
 }
 
-#dashboard-form-ul{
+#dashboard-settings-ul{
     list-style: none;
     -webkit-padding-start: 0px;
     margin: 0;
 }
 
-.dashboard-form-li{
+.dashboard-settings-li{
     position: relative;
     width: 100%;
     height: auto;
@@ -37,7 +32,7 @@ ul, ol {
     border-bottom: solid 1px #d4d4d5;
 }
 
-.dashboard-form-label{
+.dashboard-settings-label{
     font-size: 16px;
     font-weight: 300;
     line-height: 18px;
@@ -54,13 +49,18 @@ ul, ol {
     background-color: #f5f5f5;
 }
 
+.time-form-item{
+    margin-right:15px; 
+}
+
 #chart-area{
     border: 1px solid #d4d4d5;
     border-top:0px;
     margin: 0;
+    overflow: scroll;
 }
 
-#overview-area{
+#display-chart-area{
     margin: 0;
     width: 86%;
     display:inline-block;
@@ -79,6 +79,119 @@ ul, ol {
     border-right: 1px solid #d4d4d5;
     padding:10px;
 }
+
+
+#chart-types button{
+    min-width:105px;
+    margin: 5px;
+}
+
+#display-chart-section{
+    padding: 12px;
+}
+
+.dimension-section-wrapper{
+    border-bottom: 5px solid #ddd;
+    margin-bottom:15px;
+}
+
+/* Contributors section*/
+
+
+.contributors-table .contributors-table{
+    width: 100%;
+    overflow-x: scroll;
+}
+
+.contributors-table .contributors-table.fixed-table-layout{
+    table-layout: fixed;
+}
+
+.contributors-table td,
+.contributors-table th{
+    line-height: 8px;
+    font-size: 10px;
+    padding: 6px;
+    font-family: Arial, sans-serif;
+    color: #898989;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.contributors-table .row-title{
+    border: 1px solid #ddd;
+}
+
+.contributors-table .select_all_cell{
+    border: 1px solid #ddd;
+    width:25px;
+}
+
+.contributors-table .contributors-table-date{
+    font-weight: 600;
+    width: 150px;
+}
+
+.contributors-table table tr td:first-child {
+    word-wrap: break-word;
+}
+
+.contributors-table td:hover{
+    color: #898989;
+}
+
+.contributors-table .divider-cell{
+    border-left: 1px solid #ddd;
+    border-top:none;
+    border-right: 1px solid #ddd;
+
+}
+
+.contributors-table .divider-row td{
+    line-height: 8px;
+    height: 10px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.contributors-table .data-row{
+    border-top: 1px solid #ddd;
+}
+
+.contributors-table .contributors-table-time{
+    font-weight: 600;
+}
+
+.contributors-table .checkbox-cell{
+    width:15px;
+}
+.contributors-table .dimension-value-cell{
+    width:100px;
+    word-wrap: break-word;
+}
+
+.contributors-table .heat-map-cell{
+    border-right: 1px solid #ddd;
+}
+
+
+.contributors-table .dimension-value-cell{
+    border: 1px solid #ddd;
+    width: 100px;
+}
+
+.contributors-table .contributors-table-date,
+.contributors-table .contributors-table-time{
+    border: 1px solid #ddd;
+}
+
+.contributors-table .checkbox-cell{
+    width:15px;
+    border: 1px solid #ddd;
+    padding: 0px;
+}
+
 
 
 /*Override ui-kit css*/

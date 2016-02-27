@@ -39,6 +39,21 @@ $(document).ready(function() {
         }
     });
 
+    //If dimension value is null or "?" replace it with unknown or other
+    Handlebars.registerHelper('displayDimensionValue', function(dimensionValue) {
+        if (dimensionValue == ""){
+            return "UNKNOWN";
+        }else if(dimensionValue == "?"){
+            return "OTHER";
+        }else {
+            return dimensionValue;
+        }
+    })
+
+    Handlebars.registerHelper("last", function(array) {
+        return array[array.length-1];
+    });
+
 
     /* --- 2) Create Handelbars templating method --- */
     var source_funnels_table = $("#funnels-table-template").html();
@@ -127,7 +142,7 @@ $(document).ready(function() {
              console.log("data.testData2",data.testData2)
             /* Handelbars template for funnel table*/
              var result_funnels_template = template_funnels_table(data)
-             $("#overview-area").html(result_funnels_template);
+             $("#display-chart-section").html(result_funnels_template);
              calcHeatMapBG();
              transformUTCToTZ();
     });
@@ -147,7 +162,7 @@ $(document).ready(function() {
         getData("data/getmetrics.json").done(function(data){
 
             var result_funnels_template = template_funnels_table(data.testData1)
-            $("#overview-area").html(result_funnels_template);
+            $("#display-chart-section").html(result_funnels_template);
             calcHeatMapBG();
             transformUTCToTZ();
         });
@@ -159,10 +174,60 @@ $(document).ready(function() {
 
     $("#contributors-btn").on("click", function(){
         getData("data/getmetrics.json").done(function(data) {
-            var result_contributors_template = template_contributors_table(data.testData3)
-            $("#overview-area").html(result_contributors_template);
+           var result_contributors_template = template_contributors_table(data.testData3)
+           $("#display-chart-section").html(result_contributors_template);
+
+
+        /* contributors' eventlisteners */
+
+
+            // Summary and details tab toggle
+            $("#view-tabs").on("click", function(){
+                if(!$(this).hasClass("uk-active")) {
+                    $(".details-cell").toggleClass("hidden");
+                    $(".subheader").toggleClass("hidden");
+                    $('.contributors-table-time').attr('colspan', function(index, attr){
+                        return attr == 3 ? null : 3;
+                    });
+                    //$("#dimension-contributor-area table").toggleClass("fixed-table-layout");
+                    //$("#dimension-contributor-area .contributors-table-date").css("width","110px");
+                }
+            })
+
+            //Calculate heatmap-cells-bg color
+            calcHeatMapBG();
+
+            //Translate UTC date into user selected or local timezone
+            transformUTCToTZ();
+
+            //Select-all-checkbox will set the other checkboxes of the table to checked/ unchecked
+            $(".contributors-table").on("click",".select_all_checkbox",function(){
+
+                var currentTable =  $(this).closest("table");
+
+                if($(this).is(':checked')){
+                    $("input[type='checkbox']", currentTable).attr('checked', 'checked');
+                    $("input[type='checkbox']", currentTable).prop('checked', true);
+                }else{
+                    $("input[type='checkbox']", currentTable).removeAttr('checked');
+                }
+                sumColumn(this);
+            })
+
+            /* When a checkbox is clicked loop through each columns that's not displaying ratio values,
+             take the total of the cells' value in the column (if the row of the cell is checked  and the value id not N/A) and place the total into the total row.
+             Then calculate the sum row ratio column cell value based on the 2 previous column's value.
+             */
+            $(".contributors-table").on("click", $("input[checkbox]:not('.select_all_checkbox')"), function(event) {
+                var checkbox = event.target;
+                if ($(checkbox).is(':checked')) {
+                    $(checkbox).attr('checked', 'checked');
+                } else {
+                    $(checkbox).removeAttr('checked');
+                }
+                sumColumn(checkbox)
+            })
+
         });
     })
-
-
 })

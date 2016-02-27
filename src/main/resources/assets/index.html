@@ -41,10 +41,10 @@
 </head>
 
 <body style="height:100%">
-<form id="dashboard-form">
-    <ul id="dashboard-form-ul">
-        <li class="dashboard-form-li">
-            <label class="dashboard-form-label">Dataset
+<section id="dashboard-header">
+    <ul id="dashboard-settings-ul">
+        <li class="dashboard-settings-li">
+            <label class="dashboard-settings-label">Dataset
             </label>
             <div data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true" class="uk-button-group uk-display-inline-block">
                 <button class="uk-button">abook</button>
@@ -71,8 +71,8 @@
                 </div>
             </div>
         </li>
-        <li class="dashboard-form-li">
-            <label class="dashboard-form-label">Dashboard
+        <li class="dashboard-settings-li">
+            <label class="dashboard-settings-label">Dashboard
             </label>
             <div data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true" class="uk-button-group uk-display-inline-block">
                 <button class="uk-button">primary metric view</button>
@@ -87,8 +87,8 @@
                 </div>
             </div>
         </li>
-        <li class="dashboard-form-li">
-             <label class="dashboard-form-label">Metrics
+        <li class="dashboard-settings-li">
+             <label class="dashboard-settings-label">Metrics
             </label>
             <button class="uk-button" type="button"> totalFlows <i class="uk-icon-close"></i></button>
             <div data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true" class="uk-display-inline-block">
@@ -102,16 +102,75 @@
                 </div>
             </div>
         </li>
-        <li class="dashboard-form-li">
-            <label class="dashboard-form-label disabled">Dimensions
+        <li class="dashboard-settings-li">
+            <label class="dashboard-settings-label disabled">Dimensions
             </label>
         </li>
-        <li class="dashboard-form-li">
-            <label class="dashboard-form-label">Filters
+        <li class="dashboard-settings-li">
+            <label class="dashboard-settings-label">Filters
             </label>
+        </li>
+        <li class="dashboard-settings-li">
+            <label class="dashboard-settings-label">Settings:
+            </label>
+            <form id="time-input-form" class="uk-form uk-form-stacked" style="display: inline-block; padding: 5px;">
+
+                    <div id="time-input-form-error" class="uk-alert uk-alert-danger hidden">
+                        <p></p>
+                    </div>
+
+                    <div class="uk-display-inline-block time-form-item">
+                        <label class="uk-form-label">
+                            Date
+                        </label>
+                        <div class="uk-form-icon">
+                            <i class="uk-icon-calendar"></i>
+                            <input id="time-input-form-current-date" type="text" data-uk-datepicker="{pos:'top', weekstart:0, format:'YYYY-MM-DD'}">
+                        </div>
+                    </div>
+                    <div id="config-form-time-picker-box" class="uk-display-inline-block time-form-item>
+                        <label class="uk-form-label hidden" style="display: inline-block; width: 184px;">
+                            End Time
+                        </label>
+                        <div class="uk-form-icon hidden" style="width: 184px; display: block;">
+                            <i class="uk-icon-clock-o hidden" style="display: block;"></i>
+                            <input id="time-input-form-current-time" class="hidden" type="text" data-uk-timepicker="" style="width: 184px; display: inline-block;">
+                        </div>
+                    </div>
+                    <div class="uk-display-inline-block time-form-item">
+                        <label class="uk-form-label">
+                            Granularity
+                        </label>
+                        <div class="uk-button-group" data-uk-button-radio="">
+                            <button id="time-input-form-gran-hours" type="button" class="baseline-aggregate uk-button uk-active" unit="HOURS" value="3600000">HOUR</button>
+                            <button id="time-input-form-gran-days" type="button" class="baseline-aggregate uk-button" unit="DAYS" value="86400000">DAY</button>
+                        </div>
+                    </div>
+
+                    <div class="uk-display-inline-block time-form-item">
+                        <label class="uk-form-label">Compare to
+                        </label>
+                        <div class="uk-button uk-form-select" data-uk-form-select="">
+                            <span>Wo2W</span>
+                            <i class="uk-icon-caret-down"></i>
+                            <select id="time-input-comparison-size">
+                                <option class="uk-button" unit="WoW" value="7">WoW</option>
+                                <option class="uk-button" unit="Wo2W" value="14">Wo2W</option>
+                                <option class="uk-button" unit="Wo3W" value="21">Wo3W</option>
+                                <option class="uk-button" unit="Wo4W" value="28">Wo4W</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="uk-display-inline-block time-form-item">
+                        <button type="submit" id="time-input-form-submit" class="uk-button uk-button-primary ">Go</button>
+                    </div>
+            </form>
         </li>
     </ul>
-</form>
+</section>
+
+
 <div id="chart-area" class="uk-clearfix" style="height:100%">
     <div id="chart-control" style="height:97%">
         <div id="advanced-settings-entry" style="height:44px">
@@ -129,70 +188,16 @@
                 <button id="contributors-btn" class="uk-button uk-form-controls-text" type="button">Contributors</button>
             </div>
         </section>
-    </div><div id="overview-area"  class="uk-float-right" style="position: relative; height: 100%;">
+    </div><div id="display-chart-area"  class="uk-float-right" style="position: relative; height: 100%;">
         <div id="error"></div>
         <div id="funnel-loader" class="loader hidden" style="height: 100%; width: 102%; position: absolute; top: 0; left: -23px; margin:0px; background-color: #d1d1d1; opacity: 0.5;">
             <i class="uk-icon-spinner uk-icon-spin uk-icon-large" style="position: absolute; top: 50%; left: 50%;"></i>
         </div>
+    <section id="display-chart-section"></section>
 
     </div>
 </div>
-<section id="chart-footer">
-    <form id="time-input-form" class="uk-form uk-form-stacked uk-clearfix" style="margin-left:190px;">
-        <div class="uk-margin-small-top uk-margin-bottom">
-            <div id="time-input-form-error" class="uk-alert uk-alert-danger hidden">
-                <p></p>
-            </div>
 
-            <div class="uk-display-inline-block">
-                <label class="uk-form-label">
-                    Date
-                </label>
-                <div class="uk-form-icon">
-                    <i class="uk-icon-calendar"></i>
-                    <input id="time-input-form-current-date" type="text" data-uk-datepicker="{pos:'top', weekstart:0, format:'YYYY-MM-DD'}">
-                </div>
-            </div>
-            <div id="config-form-time-picker-box" class="uk-display-inline-block hidden">
-                <label class="uk-form-label hidden" style="display: inline-block; width: 184px;">
-                    End Time
-                </label>
-                <div class="uk-form-icon hidden" style="width: 184px; display: block;">
-                    <i class="uk-icon-clock-o hidden" style="display: block;"></i>
-                    <input id="time-input-form-current-time" class="hidden" type="text" data-uk-timepicker="" style="width: 184px; display: inline-block;">
-                </div>
-            </div>
-            <div class="uk-display-inline-block">
-                <label class="uk-form-label">
-                    Granularity
-                </label>
-                <div class="uk-button-group" data-uk-button-radio="">
-                    <button id="time-input-form-gran-hours" type="button" class="baseline-aggregate uk-button uk-active" unit="HOURS" value="3600000">HOUR</button>
-                    <button id="time-input-form-gran-days" type="button" class="baseline-aggregate uk-button" unit="DAYS" value="86400000">DAY</button>
-                </div>
-            </div>
-
-            <div class="uk-display-inline-block">
-                <label class="uk-form-label">Compare to
-                </label>
-                <div class="uk-button uk-form-select" data-uk-form-select="">
-                    <span>Wo2W</span>
-                    <i class="uk-icon-caret-down"></i>
-                    <select id="time-input-comparison-size">
-                        <option class="uk-button" unit="WoW" value="7">WoW</option>
-                        <option class="uk-button" unit="Wo2W" value="14">Wo2W</option>
-                        <option class="uk-button" unit="Wo3W" value="21">Wo3W</option>
-                        <option class="uk-button" unit="Wo4W" value="28">Wo4W</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="uk-display-inline-block uk-margin-right">
-                <button type="submit" id="time-input-form-submit" class="uk-button uk-button-primary ">Go</button>
-            </div>
-        </div>
-    </form>
-</section>
 
 
 <section id="metric-timeseries-area" class="hidden">
@@ -266,14 +271,25 @@
 
 <section id="contributors-section" width="100%">
     <script id="contributors-table-template" type="text/x-handlebars-template" >
-        {{#with data}}
-        {{#each metrics}}
 
+
+        <!--Summary and details buttons -->
+        <div id="view-tabs" class="uk-button-group uk-float-right">
+                <button class="uk-button uk-active">
+                    Summary
+                </button>
+                <button class="uk-button">
+                    Details
+                </button>
+        </div>
+
+
+        {{#each metrics}}
         <div class="metric-section-wrapper" rel="{{this.name}}">
             <h2>{{displayAlias this.name this.alias}}</h2>
             {{#each this/dimensions}}
-            <div class="section-wrapper" rel="{{this.dimensionName}}" style="vertical-align: top; ">
-                <h2> {{displayAlias this.dimensionName this.dimensionAlias}}</h2>
+            <div class="dimension-section-wrapper" rel="{{this.dimensionName}}" style="vertical-align: top; ">
+                <!--{{!--<h2> {{displayAlias this.dimensionName this.dimensionAlias}}</h2>
 
                 <div class="dimension-timeseries-section" dimension="{{this.dimensionName}}">
                     <div class="uk-button-group dimension-timeseries-toggle-buttons uk-display-block" data-uk-button style="margin-bottom: 15px;">
@@ -294,21 +310,23 @@
 
                     </div><div class="dimension-timeseries" class="uk-display-inline-block"  dimension="{{this.dimensionName}}" mode="1"></div>
                     <div class="dimension-time-series-tooltip" dimension="{{this.dimensionName}}" mode="1"></div>
-                </div>
-                <table id="contributors-view-{{../name}}" class="uk-table contributors-table fixed-table-layout" cell-spacing="0" width="100%">
+                </div>--}}-->
+                <h3>{{displayAlias this.dimensionName this.dimensionAlias}} total:</h3>
+                <table id="contributors-view-{{../name}}" class="uk-table contributors-table fixed-table-layout uk-margin-top" cell-spacing="0" width="100%">
                     <thead>
                     <!-- Time row-->
                     <tr>
-                        <th class="contributors-table-date border-left" colspan="2" currentUTC="{{@root.currentUTCDate}}" baselineUTC="{{@root.baselineUTCDate}}"></th>
 
-                        {{#each @root/data/timebuckets}}
-                        <th class="contributors-table-time border-left" currentUTC="{{this.[1]}}" title="{{this.[0]}}">{{this.[1]}}</th>
+                        <th class="contributors-table-date border-left" colspan="2" currentUTC="{{this.[1]}}" baselineUTC="{{this.[0]}}"></th>
+                        {{#each @root/timebuckets}}
+                        <th class="contributors-table-time border-left" currentUTC="{{this.[1]}}" title="{{this.[0]}}">{{this.[1]}}
+                        </th>
                         {{/each}}
                     </tr>
                     <!--Subheader-->
                     <tr class="subheader hidden">
                         <th colspan="2" class="divider-cell"></th>
-                        {{#each @root/data/timebuckets}}
+                        {{#each @root/timebuckets}}
                         <th class="details-cell hidden">Baseline</th>
                         <th class="details-cell hidden">Current</th>
                         <th class="heat-map-cell">Ratio</th>
@@ -338,7 +356,7 @@
                         <th class="select_all_cell"><input class="select_all_checkbox" value="1" type="checkbox" checked></th>
                         <th class="hidden"></th>
                         <th class="row-title"> Total:</th>
-                        {{#each @root/data/timebuckets}}
+                        {{#each @root/timebuckets}}
                         <th class="details-cell hidden">total discrete value will come from JS</th>
                         <th class="details-cell hidden"></th>
                         <th class="heat-map-cell"></th>
@@ -350,7 +368,7 @@
                         <th class="select_all_cell"><input class="select_all_checkbox" value="1" type="checkbox" checked></th>
                         <th class="hidden"></th>
                         <th class="row-title"> Total:</th>
-                        {{#each @root/data/timebuckets}}
+                        {{#each @root/timebuckets}}
                         <th class="details-cell hidden">total cumulative value will come from JS</th>
                         <th class="details-cell hidden"></th>
                         <th class="heat-map-cell"></th>
@@ -359,7 +377,7 @@
 
                     <!-- Divider row -->
                     <tr class="divider-row">
-                        <td colspan="5"><h3>{{displayAlias this.dimensionName this.dimensionAlias}}</h3>
+                        <td colspan="5"><h3>{{displayAlias this.dimensionName this.dimensionAlias}} values:</h3>
                         </td>
                     </tr>
                     </thead>
@@ -399,15 +417,11 @@
 
                     </tbody>
                 </table>
-                {{/each}}
+        </div>  <!-- end of dimension wrapper -->
+            {{/each}}
+    </div>  <!-- end of metric wrapper -->
 
-
-
-            </div>  <!-- end of dimension wrapper -->
-
-        </div>  <!-- end of metric wrapper -->
         {{/each}}
-        {{/with}}
     </script>
 </section>
 </body>
