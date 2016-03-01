@@ -63,8 +63,13 @@ $(document).ready(function() {
     var template_contributors_table = Handlebars.compile(source_contributors_table);
 
     var source_collections_template = $("#collections-template").html();
-    var collections_template = Handlebars.compile(source_collections_template);
+    var template_collections = Handlebars.compile(source_collections_template);
 
+    var source_treemap_template = $("#treemap-template").html();
+    var template_treemap = Handlebars.compile(source_treemap_template);
+
+    var source_metric_time_series_legend = $("#metric-time-series-legend-template").html();
+    var template_metric_time_series_legend = Handlebars.compile(source_metric_time_series_legend);
 
     /** AJAX **/
     function getData(url){
@@ -132,25 +137,139 @@ $(document).ready(function() {
             var dateTimeFormat = "MM:DD HH:mm";
             transformUTCToTZTime(cell, dateTimeFormat);
         });
+    };
+
+    //Draw Metric Timeseries
+    function drawMetricTimeSeries(ajaxData) {
+
+
+        // Metric(s)
+        var selectedMetrics = []
+        var legendColors = []
+        $(".time-series-metric-checkbox").each(function(i, checkbox) {
+            var checkboxObj = $(checkbox);
+            if (checkboxObj.is(':checked')) {
+                selectedMetrics.push( checkboxObj.val());
+                legendColors.push(checkboxObj.attr("color"));
+            }
+        });
+
+        var data = [];
+
+        var xTickFormat = "MM-DD-HH z";
+
+        for (var i = 0, mlen = selectedMetrics.length; i < mlen; i++) {
+            var metricBaselineData = {};
+            var metricCurrentData = {};
+
+            metricBaselineData.label =  selectedMetrics[i];
+            metricCurrentData.label =  selectedMetrics[i];
+
+
+            metricBaselineData.dashes = {}
+            metricBaselineData.dashes.show = true;
+
+            metricBaselineData.color= legendColors[i];
+            metricCurrentData.color= legendColors[i];
+
+            metricBaselineData.data = [];
+            metricCurrentData.data = [];
+
+            //Ticks to display on x axes
+            var xTicksBaseline = [];
+            var xTicksCurrent = [];
+            console.log(ajaxData)
+            for (var t = 0, len = ajaxData["timebuckets"].length; t < len; t++){
+
+                var cellBaselineTime = moment(ajaxData["timebuckets"][t][0]).valueOf()
+                var cellCurrentTime = moment(ajaxData["timebuckets"][t][1]).valueOf()
+                var metricObj = ajaxData.metrics.filter(function (metric) { return metric.name == selectedMetrics[i]})[0];
+
+                xTicksBaseline.push( moment(ajaxData["timebuckets"][t][0]).valueOf() )
+                xTicksCurrent.push( moment(ajaxData["timebuckets"][t][1]).valueOf() )
+
+
+                //Display the discrete or the cumulative values
+                if($("#funnel-cumulative.uk-active").length > 0 ){
+                    var baselineValue = metricObj.cumulativeData[3*t];
+                    var currentValue = metricObj.cumulativeData[3*t+1];
+                }else{
+                    var baselineValue = metricObj.data[3*t];
+                    var currentValue = metricObj.data[3*t+1];
+                }
+
+                metricBaselineData.data.push([cellBaselineTime, baselineValue]);
+                metricCurrentData.data.push([cellCurrentTime, currentValue]);
+
+                //Create 2nd x axis
+                metricCurrentData.xaxis = 2;
+
+            }
+
+            data.push(metricBaselineData)
+            data.push(metricCurrentData)
+        }
+
+        var metricPlot = $.plot($("#metric-time-series-placeholder"), data,  {
+            legend: {
+                show: false
+            },
+            grid: {
+                markingsStyle : 'dashed',
+                clickable: true,
+                hoverable: true
+            },
+            xaxes: [{ticks: xTicksBaseline,
+                tickFormatter: function(time) {
+                    return moment.utc(time).tz(jstz().timezone_name).format(xTickFormat)
+                }
+            },{
+                ticks: xTicksCurrent,
+                tickFormatter: function(time) {
+                    return moment.utc(time).tz(jstz().timezone_name).format(xTickFormat)
+                }
+            }]
+        });
     }
 
 
 
     //Get metric object
     getData("data/getmetrics.json").done(function(data){
-             var data = data.testData2;
-             console.log("data.testData2",data.testData2)
-            /* Handelbars template for funnel table*/
+
+        //Delete this ttemporary var modification once api is ready
+        var data = data.testData2;
+
+        $("#display-chart-section").empty();
+
+        /* Handelbars template for time series legend */
+        var result_metric_time_series_legend = template_metric_time_series_legend(data);
+        $("#display-chart-section").append(result_metric_time_series_legend);
+
+
+        /* Handelbars template for funnel table*/
              var result_funnels_template = template_funnels_table(data)
-             $("#display-chart-section").html(result_funnels_template);
+             $("#display-chart-section").append(result_funnels_template);
              calcHeatMapBG();
              transformUTCToTZ();
+
+
+        //Clicking the checkbox of the timeseries legend will redraw the timeseries with the selected elements
+        $("#metric-time-series-legend").on("click", 'input', function (){
+            if($(".time-series-metric-checkbox:checked").length > 0){ //# of checked cells is > 0
+                drawMetricTimeSeries(data)
+            }else{
+                document.getElementById('metric-time-series-placeholder').innerHTML = '<div id="metric-time-series-error" class="uk-alert uk-alert-danger" >Choose at least 1 metric.</div>'
+                //document.getElementById('metric-time-series-error').className = "uk-alert uk-alert-danger"
+            }
+        })
+        $($(".time-series-metric-checkbox")[0]).click();
     });
 
+
     getData("data/getdataset.json").done( function(data){
-             console.log("dataset:", data);
         /* Handelbars template for collections dropdown */
-        var result_collections_template = collections_template(data);
+        var result_collections_template = template_collections(data);
         $("#landing-collection").html(result_collections_template);
     })
 
@@ -158,25 +277,44 @@ $(document).ready(function() {
     /** Eventlisteners **/
 
     $("#overview-btn").on("click", function(){
-        /* Handelbars template for funnel table */
         getData("data/getmetrics.json").done(function(data){
 
-            var result_funnels_template = template_funnels_table(data.testData1)
-            $("#display-chart-section").html(result_funnels_template);
+            //Delete this variable modification once AJAX endpoint is ready, that will pass the needed object only
+             var data = data.testData1
+
+            $("#display-chart-section").empty();
+
+            /* Handelbars template for time series legend */
+            var result_metric_time_series_legend = template_metric_time_series_legend(data);
+            $("#display-chart-section").append(result_metric_time_series_legend);
+
+
+            /* Handelbars template for funnel table */
+            var result_funnels_template = template_funnels_table(data)
+            $("#display-chart-section").append(result_funnels_template);
             calcHeatMapBG();
             transformUTCToTZ();
+
+            //Clicking the checkbox of the timeseries legend will redraw the timeseries with the selected elements
+            $("#metric-time-series-legend").on("click", 'input', function (){
+                if($(".time-series-metric-checkbox:checked").length > 0){ //# of checked cells is > 0
+                    drawMetricTimeSeries(data)
+                }else{
+                    document.getElementById('metric-time-series-placeholder').innerHTML = '<div id="metric-time-series-error" class="uk-alert uk-alert-danger" >Choose at least 1 metric.</div>'
+                    //document.getElementById('metric-time-series-error').className = "uk-alert uk-alert-danger"
+                }
+            })
+            $($(".time-series-metric-checkbox")[0]).click();
+
         });
     })
 
-    $("#heatmap-btn").on("click", function(){
-        //todo
-    })
-
+    //Contributors section
     $("#contributors-btn").on("click", function(){
         getData("data/getmetrics.json").done(function(data) {
-           var result_contributors_template = template_contributors_table(data.testData3)
+           console.log("contributors  data", data)
+            var result_contributors_template = template_contributors_table(data.testData3)
            $("#display-chart-section").html(result_contributors_template);
-
 
         /* contributors' eventlisteners */
 
@@ -227,6 +365,58 @@ $(document).ready(function() {
                 }
                 sumColumn(checkbox)
             })
+        });
+    })
+
+    //Treemap section
+    $("#heatmap-btn").on("click", function(){
+        console.log("triggered click treemap")
+        getData("data/gettreemaps.json").done(function(data) {
+            console.log("treemap data", data);
+
+            /* Handelbars template for treemap table */
+            var result_treemap_template = template_treemap(data)
+            $("#display-chart-section").html(result_treemap_template);
+
+
+            var options = {
+                maxDepth: 2,
+                minColorValue: -25,
+                maxColorValue: 25,
+                minColor: '#f00',
+                midColor: '#ddd',
+                maxColor: '#00f',
+                headerHeight: 0,
+                fontColor: '#000',
+                showScale: false,
+                highlightOnMouseOver: true,
+                generateTooltip : {}//Tooltip.showTreeMapTooltip
+            }
+
+            google.load("visualization", "1", {packages:["treemap"]});
+            google.setOnLoadCallback(drawChart);
+
+            function drawChart(){
+                var treemapData = {};
+                for ( key in data){
+
+                    for (var i= 0, len= data[key]["dimensions"].length; i<len; i++){
+                         // google.visualization.arrayToDataTable(data[key]["dim_0_data_0"])
+                        console.log("placeholder",  document.getElementById('metric_'+ key + '_dim_'+ i +'_treemap_0') );
+                        console.log("data",  data[key]["dim_"+ i + "_data_0"] );
+
+                         //treemapData["dim_"+ i + "_data_0"] = new google.visualization.TreeMap(document.getElementById('metric_'+ key + '_dim_'+ i +'_treemap_0')); //(data[key]["dim_"+ i + "_data_0"]) ? data[key]["dim_"+ i + "_data_0"] : null;
+                        //treemapData["dim_"+ i + "_data_1"] = new google.visualization.TreeMap(document.getElementById('metric_'+ key + '_dim_'+ i +'_treemap_1'));//(data[key]["dim_"+ i + "_data_1"]) ? data[key]["dim_"+ i + "_data_1"] : null;
+                        //treemapData["dim_"+ i + "_data_2"] = new google.visualization.TreeMap(document.getElementById('metric_'+ key + '_dim_'+ i +'_treemap_2'));//(data[key]["dim_"+ i + "_data_2"]) ? data[key]["dim_"+ i + "_data_2"] : null;
+
+
+                        //  treemapData["dim_"+ i + "_data_0"].draw( (data[key]["dim_"+ i + "_data_0"])  , options);
+                        //  treemapData["dim_"+ i + "_data_1"].draw( (data[key]["dim_"+ i + "_data_1"])  , options);
+                        //  treemapData["dim_"+ i + "_data_2"].draw( (data[key]["dim_"+ i + "_data_2"])  , options);
+
+                    }
+                }
+            }
 
         });
     })
