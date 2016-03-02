@@ -36,8 +36,12 @@
     <script src="js/flot/jquery.flot.min.js" defer></script>
 
     <script src="js/utility.js" defer></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi" defe></script>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js" defer></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <!--<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js" defer></script>-->
+
+    <script>
+        google.load("visualization", "1", {packages:["treemap"]});
+    </script>
     <script src="js/dashboard.js" defer></script>
 
 </head>
@@ -162,8 +166,8 @@
 </section>
 
 
-<div id="chart-area" class="uk-clearfix parent" style="height:100%">
-    <div id="chart-control" class="col1" >
+<div id="chart-area" class="uk-clearfix grid">
+    <div id="chart-control" class="col-1-3 abs-pos-sidenav" >
         <div id="advanced-settings-entry" style="height:44px">
             <span>Advanced Settings <i class="uk-icon-gear"></i></span>
         </div>
@@ -180,7 +184,7 @@
             </div>
         </section>
     </div>
-    <div id="display-chart-area"  class="uk-float-right col2" style="position: relative;">
+    <div id="display-chart-area"  class="uk-float-right col-2-3" style="position: relative;">
         <div id="error"></div>
         <div id="funnel-loader" class="loader hidden" style="height: 100%; width: 102%; position: absolute; top: 0; left: -23px; margin:0px; background-color: #d1d1d1; opacity: 0.5;">
             <i class="uk-icon-spinner uk-icon-spin uk-icon-large" style="position: absolute; top: 50%; left: 50%;"></i>
@@ -414,7 +418,6 @@
         </div>  <!-- end of dimension wrapper -->
             {{/each}}
     </div>  <!-- end of metric wrapper -->
-
         {{/each}}
     </script>
 </section>
@@ -426,28 +429,7 @@
         {{#each this}}
         <div class="metric-section-wrapper" rel="{{@key}}">
             <div class="dimension-heat-map-treemap-section">
-                <!-- This section will be moved into the summary section<div class="title-box">
-                <table>
-                    <tr>
-                        <th><p>{{metric}}</p></th>
-                        <th> Baseline Date: </th>
-                        <th> Current Date: </th>
-                        <th> Baseline Total:</th>
-                        <th> Current Total:</th>
-                        <th> Delta Value:</th>
-                        <th> Delta (%):</th>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td class="title-stat baseline-date-time"></td>
-                        <td class="title-stat current-date-time"></td>
-                        <td class="title-stat baseline-total">${dimensionView.view.metricGlobalStats[metric]['baseline_total']}</td>
-                        <td class="title-stat current-total">${dimensionView.view.metricGlobalStats[metric]['current_total']}</td>
-                        <td class="title-stat delta-value">${dimensionView.view.metricGlobalStats[metric]['delta_absolute_change']}</td>
-                        <td class="title-stat delta-ratio">${dimensionView.view.metricGlobalStats[metric]['delta_percent_change']}</td>
-                    </tr>
-                </table>
-            </div>-->
+
                 <div class="uk-button-group dimension-treemap-toggle-buttons" data-uk-button-radio>
                     <button class="uk-button dimension-treemap-mode" id="treemap_contribution-total-change-percent" mode="0">
                         <i class="uk-icon-eye-slash"></i> Percentage Change
@@ -460,33 +442,31 @@
                     </button>
                 </div>
 
-                <div id="metric_{{@key}}_treemap_0" class="treemap-container" mode="0">
-                    <table class="treemap-display-tbl">
-
-                        {{#each dimensions}}
-
-                        <tr>
-                            <td class="treemap-display-tbl-dim"><div class="treemap-rotate"><div>{{this}}</div></div></td><td id="metric_{{@../key}}_dim_{{@index}}_treemap_0" class="dimension-treemap" rel="{{this}}" style="width: 100%; height:100px;display:inline-block; border: 1px solid blue;" ></td>
-                        </tr>
-                        {{/each}}
-                    </table>
-
-                </div>
-                <div id="metric_{{@key}}_treemap_1" class="treemap-container" mode="1">
+                <div id="metric_{{@key}}_treemap_0" class="treemap-container  uk-margin" mode="0">
                     <table class="treemap-display-tbl">
                         {{#each dimensions}}
                         <tr>
-                            <td class="treemap-display-tbl-dim"><div class="treemap-rotate"><div>{{this}}</div></div></td><td id="metric_{{@../key}}_dim_{{@index}}_treemap_1" class="dimension-treemap" rel="{{this}}" style="width: 100%; height:100px;display:inline-block; border: 1px solid green;" ></td>
+                            <td class="treemap-display-tbl-dim"><div style="text-align: left;">{{this}}</div></td><td id="metric_{{@../key}}_dim_{{@index}}_treemap_0" class="dimension-treemap" rel="{{this}}" style="width: 1050px; height:100px;display:inline-block;" ></td>
                         </tr>
                         {{/each}}
                     </table>
                 </div>
-                <div id="metric_{{@key}}_treemap_2" class="treemap-container" mode="2">
-                    <table class="treemap-display-tbl">
 
+                <div id="metric_{{@key}}_treemap_1" class="treemap-container  uk-margin" mode="1">
+                    <table class="treemap-display-tbl">
                         {{#each dimensions}}
                         <tr>
-                            <td class="treemap-display-tbl-dim"><div class="treemap-rotate"><div>{{this}}</div></div></td><td id="metric_{{@../key}}_dim_{{@index}}_treemap_2" class="dimension-treemap" rel="{{this}}" style="width: 100%; height:100px;display:inline-block" ></td>
+                            <td class="treemap-display-tbl-dim"><div style="text-align: left;">{{this}}</div></td><td id="metric_{{@../key}}_dim_{{@index}}_treemap_1" class="dimension-treemap" rel="{{this}}" style="width: 1050px; height:100px;display:inline-block;" ></td>
+                        </tr>
+                        {{/each}}
+                    </table>
+                </div>
+
+                <div id="metric_{{@key}}_treemap_2" class="treemap-container  uk-margin" mode="2">
+                    <table class="treemap-display-tbl">
+                        {{#each dimensions}}
+                        <tr>
+                            <td class="treemap-display-tbl-dim"><div style="text-align: left;">{{this}}</div></td><td id="metric_{{@../key}}_dim_{{@index}}_treemap_2" class="dimension-treemap" rel="{{this}}" style="width: 1050px; height:100px;display:inline-block;" ></td>
                         </tr>
                         {{/each}}
                     </table>
@@ -497,9 +477,8 @@
     </script>
 </section>
 
-<script>
-    google.load("visualization", "1", {packages:["treemap"]});
-</script>
+<div id="chart_div" style="width: 900px; height: 500px;"></div>
+
 </body>
 
 </html>

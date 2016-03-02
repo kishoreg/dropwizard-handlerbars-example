@@ -137,8 +137,6 @@ $(document).ready(function() {
         $("#landing-collection").html(result_collections_template);
     })
 
-
-
     // Assign background color value to each heat-map-cell
     function calcHeatMapBG() {
         $(".heat-map-cell").each(function (i, cell) {
@@ -610,53 +608,77 @@ $(document).ready(function() {
 
     //Treemap section
     $("#heatmap-btn").on("click", function(){
-        console.log("triggered click treemap")
+
         getData("data/gettreemaps.json").done(function(data) {
-            console.log("treemap data", data);
 
             /* Handelbars template for treemap table */
             var result_treemap_template = template_treemap(data)
             $("#display-chart-section").html(result_treemap_template);
 
-
-            var options = {
-                maxDepth: 2,
-                minColorValue: -25,
-                maxColorValue: 25,
-                minColor: '#f00',
-                midColor: '#ddd',
-                maxColor: '#00f',
-                headerHeight: 0,
-                fontColor: '#000',
-                showScale: false,
-                highlightOnMouseOver: true,
-                generateTooltip : {}//Tooltip.showTreeMapTooltip
-            }
-
-            google.load("visualization", "1", {packages:["treemap"]});
-            google.setOnLoadCallback(drawChart);
-
             function drawChart(){
-                var treemapData = {};
-                for ( key in data){
+                console.log("drawChart called");
+                var options = {
+                    maxDepth: 2,
+                    minColorValue: -25,
+                    maxColorValue: 25,
+                    minColor: '#f00',
+                    midColor: '#ddd',
+                    maxColor: '#00f',
+                    headerHeight: 0,
+                    fontColor: '#000',
+                    showScale: false,
+                    highlightOnMouseOver: true
+                }
 
-                    for (var i= 0, len= data[key]["dimensions"].length; i<len; i++){
-                         // google.visualization.arrayToDataTable(data[key]["dim_0_data_0"])
-                        console.log("placeholder",  document.getElementById('metric_'+ key + '_dim_'+ i +'_treemap_0') );
-                        console.log("data",  data[key]["dim_"+ i + "_data_0"] );
+                for(metric in data){
+                    for(var i= 0, len = data[metric]["dimensions"].length; i<len; i++){
 
-                         //treemapData["dim_"+ i + "_data_0"] = new google.visualization.TreeMap(document.getElementById('metric_'+ key + '_dim_'+ i +'_treemap_0')); //(data[key]["dim_"+ i + "_data_0"]) ? data[key]["dim_"+ i + "_data_0"] : null;
-                        //treemapData["dim_"+ i + "_data_1"] = new google.visualization.TreeMap(document.getElementById('metric_'+ key + '_dim_'+ i +'_treemap_1'));//(data[key]["dim_"+ i + "_data_1"]) ? data[key]["dim_"+ i + "_data_1"] : null;
-                        //treemapData["dim_"+ i + "_data_2"] = new google.visualization.TreeMap(document.getElementById('metric_'+ key + '_dim_'+ i +'_treemap_2'));//(data[key]["dim_"+ i + "_data_2"]) ? data[key]["dim_"+ i + "_data_2"] : null;
+                        var Treemap = {};
+                        Treemap["formattedData_metric_" + metric + "_dim_" + i + "_treemap_0"] = google.visualization.arrayToDataTable( data[metric]["dim_"+ i +"_data_0"]);
+                        Treemap["formattedData_metric_" + metric + "_dim_" + i + "_treemap_1"] = google.visualization.arrayToDataTable( data[metric]["dim_"+ i +"_data_1"]);
+                        Treemap["formattedData_metric_" + metric + "_dim_" + i + "_treemap_2"] = google.visualization.arrayToDataTable( data[metric]["dim_"+ i +"_data_2"]);
 
+                        Treemap["placeHolderID" + 0] = 'metric_' + metric + '_dim_' + i + '_treemap_0';
+                        Treemap["placeHolderID" + 1] = 'metric_' + metric + '_dim_' + i + '_treemap_1';
+                        Treemap["placeHolderID" + 2] = 'metric_' + metric + '_dim_' + i + '_treemap_2';
 
-                        //  treemapData["dim_"+ i + "_data_0"].draw( (data[key]["dim_"+ i + "_data_0"])  , options);
-                        //  treemapData["dim_"+ i + "_data_1"].draw( (data[key]["dim_"+ i + "_data_1"])  , options);
-                        //  treemapData["dim_"+ i + "_data_2"].draw( (data[key]["dim_"+ i + "_data_2"])  , options);
+                        Treemap["metric_" + metric + "_dim_" + i + "_treemap_0"] = new google.visualization.TreeMap(document.getElementById(Treemap["placeHolderID" + 0]));
+                        Treemap["metric_" + metric + "_dim_" + i + "_treemap_1"] = new google.visualization.TreeMap(document.getElementById(Treemap["placeHolderID" + 1]));
+                        Treemap["metric_" + metric + "_dim_" + i + "_treemap_2"] = new google.visualization.TreeMap(document.getElementById(Treemap["placeHolderID" + 2]));
 
+                        Treemap["metric_" + metric + "_dim_" + i + "_treemap_0"].draw(Treemap["formattedData_metric_" + metric + "_dim_" + i + "_treemap_0"], options);
+                        Treemap["metric_" + metric + "_dim_" + i + "_treemap_1"].draw(Treemap["formattedData_metric_" + metric + "_dim_" + i + "_treemap_1"], options);
+                        Treemap["metric_" + metric + "_dim_" + i + "_treemap_2"].draw(Treemap["formattedData_metric_" + metric + "_dim_" + i + "_treemap_2"], options);
                     }
                 }
+
+
             }
+
+            drawChart()
+
+            //Treemap eventlisteners
+
+            $(".dimension-treemap-mode").click(function() {
+
+                var currentMode = $(this).attr('mode');
+                var currentMetricArea = $(this).closest(".dimension-heat-map-treemap-section");
+
+                // Display related treemap
+                $(".treemap-container", currentMetricArea ).hide();
+                $($(".treemap-container", currentMetricArea )[currentMode]).show();
+
+                //Change icon on the radio buttons
+                $('.dimension-treemap-mode i', currentMetricArea ).removeClass("uk-icon-eye");
+                $('.dimension-treemap-mode i', currentMetricArea ).addClass("uk-icon-eye-slash");
+                $('i', this).removeClass("uk-icon-eye-slash");
+                $('i', this).addClass("uk-icon-eye");
+            })
+
+            //Set initial view
+
+            //Preselect treeemap mode on pageload (mode 0 = Percentage Change)
+            $(".dimension-treemap-mode[mode = '0']").click()
 
         });
     })
@@ -665,4 +687,15 @@ $(document).ready(function() {
 
     //On initial load start with overview view
     $("#overview-btn").click()
+
+    var sidebar = $("#chart-control");
+    sidebar.on("scroll", function(e) {
+
+        if (this.scrollTop > 200) {
+            sidebar.addClass("fix-pos-sidenav");
+        } else {
+            sidebar.removeClass("fix-pos-sidenav");
+        }
+    });
+
 })
