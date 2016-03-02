@@ -15,6 +15,17 @@ $(document).ready(function() {
         }
     });
 
+    Handlebars.registerHelper('createSubheader', function(index) {
+        if((index+1)%3==0){
+            title = "Ratio";
+        }else if((index+1)%3==1){
+            title = "Baseline Value";
+        }else{
+            title = "Current Value";
+        }
+        return  title;
+    })
+
     /*Add details-cell or heatmap-cell class to cells*/
     Handlebars.registerHelper('classify', function (index) {
         if ((index + 1) % 3 == 0) {
@@ -49,10 +60,6 @@ $(document).ready(function() {
             return dimensionValue;
         }
     })
-
-    Handlebars.registerHelper("last", function(array) {
-        return array[array.length-1];
-    });
 
 
     /* --- 2) Create Handelbars templating method --- */
@@ -124,6 +131,14 @@ $(document).ready(function() {
         })
     }
 
+    getData("data/getdataset.json").done( function(data){
+        /* Handelbars template for collections dropdown */
+        var result_collections_template = template_collections(data);
+        $("#landing-collection").html(result_collections_template);
+    })
+
+
+
     // Assign background color value to each heat-map-cell
     function calcHeatMapBG() {
         $(".heat-map-cell").each(function (i, cell) {
@@ -141,7 +156,6 @@ $(document).ready(function() {
 
     //Draw Metric Timeseries
     function drawMetricTimeSeries(ajaxData) {
-
 
         // Metric(s)
         var selectedMetrics = []
@@ -178,7 +192,7 @@ $(document).ready(function() {
             //Ticks to display on x axes
             var xTicksBaseline = [];
             var xTicksCurrent = [];
-            console.log(ajaxData)
+
             for (var t = 0, len = ajaxData["timebuckets"].length; t < len; t++){
 
                 var cellBaselineTime = moment(ajaxData["timebuckets"][t][0]).valueOf()
@@ -203,14 +217,13 @@ $(document).ready(function() {
 
                 //Create 2nd x axis
                 metricCurrentData.xaxis = 2;
-
             }
 
             data.push(metricBaselineData)
             data.push(metricCurrentData)
         }
 
-        var metricPlot = $.plot($("#metric-time-series-placeholder"), data,  {
+        $.plot($("#metric-time-series-placeholder"), data,  {
             legend: {
                 show: false
             },
@@ -234,53 +247,180 @@ $(document).ready(function() {
 
 
 
-    //Get metric object
-    getData("data/getmetrics.json").done(function(data){
 
-        //Delete this ttemporary var modification once api is ready
-        var data = data.testData2;
+    function createPlotData(options){
 
-        $("#display-chart-section").empty();
+        var dimTimeseriesData = [];
+        var selectedMetric = $("[selected] a", $('#view-metric-selector')).html().trim();
+        var selectedMetricObj = options['data']['metrics']; //data.metrics.filter(function (metric) { return metric.name == selectedMetric});
+        console.log("options",options.data);
 
-        /* Handelbars template for time series legend */
-        var result_metric_time_series_legend = template_metric_time_series_legend(data);
-        $("#display-chart-section").append(result_metric_time_series_legend);
+        if(typeof options.selectedDimension  == "undefined"){
 
-
-        /* Handelbars template for funnel table*/
-             var result_funnels_template = template_funnels_table(data)
-             $("#display-chart-section").append(result_funnels_template);
-             calcHeatMapBG();
-             transformUTCToTZ();
+            var selectedDimensionObj = selectedMetricObj[0]['dimensions'][0];
+        }else{
 
 
-        //Clicking the checkbox of the timeseries legend will redraw the timeseries with the selected elements
-        $("#metric-time-series-legend").on("click", 'input', function (){
-            if($(".time-series-metric-checkbox:checked").length > 0){ //# of checked cells is > 0
-                drawMetricTimeSeries(data)
-            }else{
-                document.getElementById('metric-time-series-placeholder').innerHTML = '<div id="metric-time-series-error" class="uk-alert uk-alert-danger" >Choose at least 1 metric.</div>'
-                //document.getElementById('metric-time-series-error').className = "uk-alert uk-alert-danger"
+            var selectedDimensionObj = $(selectedMetricObj[0]).filter(function (dimension) { return dimension.dimensionName == options.selectedDimension});
+        }
+
+        var vlen = selectedDimensionObj.dimensionValues.length;
+
+        //for each dimension value create the following object
+        for(var i = 0; i<vlen; i++){
+            var plotDimensionValObj = {};
+
+
+            plotDimensionValObj.label = selectedDimensionObj.dimensionValues[i]['dimValue'];
+            if(plotDimensionValObj.label == "?"){
+                plotDimensionValObj.label = "OTHER"
+            }else if(plotDimensionValObj.label == ""){
+                plotDimensionValObj.label == "UNKNOWN"
             }
-        })
-        $($(".time-series-metric-checkbox")[0]).click();
-    });
+
+            plotDimensionValObj.points = {};
+            var color = "#" + ( parseInt(plotDimensionValObj.label, 36) + 16777216 ).toString(16).substring(0, 6)
+
+            plotDimensionValObj['points']['fillColor'] =  color;
+            plotDimensionValObj.color = color;
+
+            plotDimensionValObj['points']['size'] = 5;
+            plotDimensionValObj.data = [];
+            for(var t = 0, len = options.data.timebuckets.length; t<len; t++){
+                //Display the discrete or the cumulative values
+
+                switch(options.cumulative + " | " +  options.contributionToTotal){
+
+                    //cumulative contribution to total
+                    case "true | true":
+                        //plotDimensionValObj.data.push([ moment(data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['cumulative_contribution_to_total'][t] ])
+                        break;
+                    //cumulative value
+                    case "true | false": plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['cumulativeData'][t*3+1] ])
+                        break;
+                    //discrete contribution to total
+                    case "false | true":  plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['contribution_to_total'][t] ])
+                        break;
+                    //value
+                    case "false | false":  plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['data'][t*3+1] ])
+                        break;
+                }
+
+                plotDimensionValObj.timebuckets = options.data.timebuckets
 
 
-    getData("data/getdataset.json").done( function(data){
-        /* Handelbars template for collections dropdown */
-        var result_collections_template = template_collections(data);
-        $("#landing-collection").html(result_collections_template);
-    })
+                /*if($("#funnel-cumulative.uk-active").length > 0 ){
+                 //data.push([ milliseconds, value])
+                 plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['cumulativeData'][t*3+1] ])
+                 }else{
+
+                 //data.push([ milliseconds, value])
+                 plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['data'][t*3+1] ])
+                 }*/
+            }
+
+            dimTimeseriesData.push( plotDimensionValObj )
+        }
+
+        console.log("dimTimeseriesData", dimTimeseriesData )
+
+        return dimTimeseriesData /* [
+         { label: "abook-import-impression-submit", data: d1, points: { fillColor: "#4572A7", size: 5 }, color: '#4572A7' },
+         { label: "OTHER", data: d2, points: { fillColor: "#AA4643", size: 5 }, color: '#AA4643' },
+         { label: "UNKNOWN", data: d3, points: { fillColor: "#89A54E", size: 5 }, color: '#89A54E', timebuckets : [] }
+         ]*/
+    }
+
+    function drawDimTimeSeries(placeholder, data, customOptions){
+        console.log('data', data)
+
+        //Create the x axis ticks
+        var xTicks = [];
+        for (var t = 0, len = data[0]["timebuckets"].length; t < len; t++){  //ajaxdata
+
+            xTicks.push( moment(data[0]["timebuckets"][t][1]).valueOf() )
+
+        };
+        var xTickFormat = "MM-DD-HH z";
+
+        //build options object and extend it with custom options
+        var defaultOptions ={
+            xaxis: {
+                ticks: xTicks,
+                tickFormatter: function(time) {
+                    console.log("time",time);
+                    console.log("time tz",moment.utc(time).tz(jstz().timezone_name).format('MM-DD HH z'));
+                    return moment.utc(time).tz(jstz().timezone_name).format('MM-DD HH z');
+                }
+            },
+            series: {
+                lines: {
+                    show: true,
+                    fill: true
+                },
+                stack: true,
+                points: {
+                    show: false
+                }
+            },
+            grid: {
+                clickable: true,
+                hoverable: true,
+                borderWidth: 1
+            },
+            legend: {
+                labelBoxBorderColor: "none",
+                position: "right"
+            }
+
+        }
+        //merging the custom settings into the default settings object
+        var options = $.extend(true, {}, defaultOptions, customOptions)
+
+        //Draw timeseries with Flotjs
+        $.plot(placeholder, data, options);
+
+            var tooltip = $(".dimension-timeseries-tooltip[dimension='pageKey'][mode='1']")
+            $(".dimension-timeseries[dimension='pageKey']").bind("plothover", function(event, pos, item) {
+                if (item) {
+                    var dateString = moment.utc(item.datapoint[0]).tz(getTimeZone()).format("YYYY-MM-DD HH:mm z")
+                    var value = item.datapoint[1];
+
+                    if (item.series.label.indexOf("ANOMALY_") >= 0) {
+                        //var metric =  item.series.label.substring('ANOMALY_'.length, item.series.label.indexOf(' '))
+                        tooltip.html("Tooltip")
+                            /* .css({
+                             top: item.pageY + 5,
+                             right: $(window).width() - item.pageX,
+                             'background-color': 'white',
+                             border: '1px solid red',
+                             'z-index': 1000
+                             })*/
+                            .fadeIn(100)
+                    } else {
+                        tooltip.html("tooltip 2")//item.series.label + " = " + value + " @ " + dateString)
+                            /* .css({
+                             top: item.pageY + 5,
+                             right: $(window).width() - item.pageX,
+                             'background-color': '#ffcc00',
+                             border: '1px solid #cc9900',
+                             'z-index': 1000
+                             })*/
+                            .fadeIn(100)
+                    }
+                } else {
+                    tooltip.hide()
+                }
+            })
+    }
 
 
     /** Eventlisteners **/
-
     $("#overview-btn").on("click", function(){
         getData("data/getmetrics.json").done(function(data){
 
-            //Delete this variable modification once AJAX endpoint is ready, that will pass the needed object only
-             var data = data.testData1
+            //Delete this temporary var modification once api is ready
+            var data = data.testData2;
 
             $("#display-chart-section").empty();
 
@@ -289,34 +429,134 @@ $(document).ready(function() {
             $("#display-chart-section").append(result_metric_time_series_legend);
 
 
-            /* Handelbars template for funnel table */
+            /* Handelbars template for funnel table*/
             var result_funnels_template = template_funnels_table(data)
             $("#display-chart-section").append(result_funnels_template);
             calcHeatMapBG();
             transformUTCToTZ();
 
             //Clicking the checkbox of the timeseries legend will redraw the timeseries with the selected elements
-            $("#metric-time-series-legend").on("click", 'input', function (){
+            $("#metric-time-series-legend, .time-series-metric-checkbox").on("click", 'input', function (){
                 if($(".time-series-metric-checkbox:checked").length > 0){ //# of checked cells is > 0
                     drawMetricTimeSeries(data)
                 }else{
-                    document.getElementById('metric-time-series-placeholder').innerHTML = '<div id="metric-time-series-error" class="uk-alert uk-alert-danger" >Choose at least 1 metric.</div>'
-                    //document.getElementById('metric-time-series-error').className = "uk-alert uk-alert-danger"
+                    document.getElementById('metric-time-series-placeholder').innerHTML = '<div id="metric-time-series-error" class="uk-alert uk-alert-danger" >Choose at least 1 metric.</div>';
                 }
             })
-            $($(".time-series-metric-checkbox")[0]).click();
 
+
+
+            /*var firstCheckbox = document.getElementsByClassName("time-series-metric-checkbox")[0];
+
+             var clickEvent = new MouseEvent("click", {
+             "view": window,
+             "bubbles": true,
+             "cancelable": false
+             });
+             firstCheckbox.dispatchEvent(clickEvent);*/
+
+            $($(".time-series-metric-checkbox")[0]).click();
         });
     })
 
     //Contributors section
     $("#contributors-btn").on("click", function(){
         getData("data/getmetrics.json").done(function(data) {
-           console.log("contributors  data", data)
-            var result_contributors_template = template_contributors_table(data.testData3)
-           $("#display-chart-section").html(result_contributors_template);
+            console.log("contributors  data", data)
+            //Delete this temporary var modification once api is ready
+            var data = data.testData3;
 
-        /* contributors' eventlisteners */
+
+
+
+            //Handelbars contributors table template
+            $("#display-chart-section").empty()
+            var result_contributors_template = template_contributors_table(data)
+            $("#display-chart-section").append(result_contributors_template);
+
+            //Create timeseries
+            var customOptionsValue = {};
+            customOptionsValue.legend = {container: $(".dimension-timeseries-legend[mode='0']")};
+
+
+            //todo: metrics[0] has to refer to e selected metric
+            for (var i= 0, len = data['metrics'][0]['dimensions'].length; i<len; i++){
+
+                console.log("nested data", data['metrics'][0]['dimensions'])
+                console.log("nested data", data['metrics'][0]['dimensions'][i]['dimensionName'])
+
+                var selectedDim = data['metrics'][0]['dimensions'][i]['dimensionName'];
+                console.log("i", i)
+                console.log("selectedDim", selectedDim)
+                //Timeseries of dimension values
+                drawDimTimeSeries($(".dimension-timeseries[dimension='"+ selectedDim +"'][mode='0']"), createPlotData({data: data, cumulative: false, contributionToTotal: false}), customOptionsValue); //createPlotData({cumulative : false, contributionToTotal : false})
+
+                var customOptionsPercent = {};
+                customOptionsPercent.yaxis = {
+                    min: 0,
+                    max: 100,
+                    ticks: [
+                        [20, "20%"],
+                        [40, "40%"],
+                        [60, "60%"],
+                        [80, "80%"],
+                        [100, "100%"]
+                    ]
+                };
+
+                customOptionsPercent.legend = {container: $(".dimension-timeseries-legend[mode='1']")}
+
+
+                //Timeseries of contribution to total
+                drawDimTimeSeries(
+                    $(".dimension-timeseries[dimension='"+ selectedDim +"'][mode='1']"), createPlotData({data: data, cumulative: false, contributionToTotal: true}),
+                    customOptionsPercent);
+
+                $(".dimension-timeseries-legend[mode='1'] table").addClass("hidden");
+
+                // Dimension timeseries related event listeners
+                $(".dimension-timeseries-mode").click(function() {
+
+                    var currentMode = $(this).attr("mode")
+
+                    var currentMetricArea = $(this).closest(".dimension-timeseries-section");
+
+
+                    // Set in URI
+                    //var hash = parseHashParameters(window.location.hash)
+                    //hash['timeSeriesMode'] = currentMode
+                    //window.location.hash = encodeHashParameters(hash)
+
+                    // Display selected timeseries
+                    $(".dimension-timeseries-legend", currentMetricArea).hide()
+                    $(".dimension-timeseries-legend table", currentMetricArea).hide()
+                    $(".dimension-timeseries", currentMetricArea).hide()
+                    $(".dimension-timeseries-tooltip", currentMetricArea).hide()
+
+                    $($(".dimension-timeseries-legend", currentMetricArea)[currentMode]).show()
+                    $($(".dimension-timeseries-legend table", currentMetricArea)[currentMode]).show()
+                    $($(".dimension-timeseries", currentMetricArea)[currentMode]).show()
+                    $($(".dimension-timeseries-tooltip", currentMetricArea)[currentMode]).show()
+
+                    //Change icon on the radio buttons
+                    $('.dimension-timeseries-mode i', currentMetricArea).removeClass("uk-icon-eye")
+                    $('.dimension-timeseries-mode i', currentMetricArea).addClass("uk-icon-eye-slash")
+                    $('i', this).removeClass("uk-icon-eye-slash")
+                    $('i', this).addClass("uk-icon-eye")
+
+                })
+
+                $(".select_all_cell").click();
+                $(".select_all_cell").click();
+
+
+            }
+
+
+
+
+
+            /* contributors' eventlisteners */
 
 
             // Summary and details tab toggle
@@ -420,4 +660,9 @@ $(document).ready(function() {
 
         });
     })
+
+    //Set initial view
+
+    //On initial load start with overview view
+    $("#overview-btn").click()
 })

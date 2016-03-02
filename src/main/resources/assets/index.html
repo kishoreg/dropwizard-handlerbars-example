@@ -78,15 +78,15 @@
                 </div>
             </div>
         </li>
-        <li class="dashboard-settings-li">
+        <li id="view-metric-selector" class="dashboard-settings-li" >
              <label class="dashboard-settings-label">Metrics
             </label>
             <button class="uk-button" type="button"> totalFlows <i class="uk-icon-close"></i></button>
-            <div data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true" class="uk-display-inline-block">
+            <div class="add-btn uk-display-inline-block" data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true">
                 <button class="uk-button uk-button-primary" type="button"><i class="uk-icon-plus"></i></button>
                 <div class="uk-dropdown uk-dropdown-small ">
                     <ul class="uk-nav uk-nav-dropdown">
-                        <li><a href="#">totalFlows</a></li>
+                        <li selected><a href="#">totalFlows</a></li>
                         <li class="uk-nav-divider"></li>
                         <li><a href="#">submits</a></li>
                     </ul>
@@ -162,8 +162,8 @@
 </section>
 
 
-<div id="chart-area" class="uk-clearfix" style="height:100%">
-    <div id="chart-control" style="height:97%">
+<div id="chart-area" class="uk-clearfix parent" style="height:100%">
+    <div id="chart-control" class="col1" >
         <div id="advanced-settings-entry" style="height:44px">
             <span>Advanced Settings <i class="uk-icon-gear"></i></span>
         </div>
@@ -179,7 +179,8 @@
                 <button id="contributors-btn" class="uk-button uk-form-controls-text" type="button">Contributors</button>
             </div>
         </section>
-    </div><div id="display-chart-area"  class="uk-float-right" style="position: relative; height: 100%;">
+    </div>
+    <div id="display-chart-area"  class="uk-float-right col2" style="position: relative;">
         <div id="error"></div>
         <div id="funnel-loader" class="loader hidden" style="height: 100%; width: 102%; position: absolute; top: 0; left: -23px; margin:0px; background-color: #d1d1d1; opacity: 0.5;">
             <i class="uk-icon-spinner uk-icon-spin uk-icon-large" style="position: absolute; top: 50%; left: 50%;"></i>
@@ -254,31 +255,19 @@
 
     </table>
     </script>
-</section>
+</section
 
-
+>
 
 <section id="contributors-section" width="100%">
     <script id="contributors-table-template" type="text/x-handlebars-template" >
-
-
-        <!--Summary and details buttons -->
-        <div id="view-tabs" class="uk-button-group uk-float-right">
-                <button class="uk-button uk-active">
-                    Summary
-                </button>
-                <button class="uk-button">
-                    Details
-                </button>
-        </div>
-
 
         {{#each metrics}}
         <div class="metric-section-wrapper" rel="{{this.name}}">
             <h2>{{displayAlias this.name this.alias}}</h2>
             {{#each this/dimensions}}
             <div class="dimension-section-wrapper" rel="{{this.dimensionName}}" style="vertical-align: top; ">
-                <!--{{!--<h2> {{displayAlias this.dimensionName this.dimensionAlias}}</h2>
+                <h2> {{displayAlias this.dimensionName this.dimensionAlias}}</h2>
 
                 <div class="dimension-timeseries-section" dimension="{{this.dimensionName}}">
                     <div class="uk-button-group dimension-timeseries-toggle-buttons uk-display-block" data-uk-button style="margin-bottom: 15px;">
@@ -291,16 +280,32 @@
                     </div>
 
 
-                    <div class="dimension-timeseries-legend"  dimension="{{this.dimensionName}}" mode="0" >
+                    <div class="dimension-timeseries-legend"  dimension="{{this.dimensionName}}" mode="0">
                     </div><div class="dimension-timeseries" class="uk-display-inline-block"  dimension="{{this.dimensionName}}" mode="0"></div>
                     <div class="dimension-time-series-tooltip" dimension="{{this.dimensionName}}" mode="0"></div>
 
-                    <div class="dimension-timeseries-legend uk-display-inline-block"  dimension="{{this.dimensionName}}" mode="1">
+                    <div class="dimension-timeseries-legend uk-display-inline-block hidden"  dimension="{{this.dimensionName}}" mode="1"></div>
+                    <div class="dimension-timeseries hidden" class="uk-display-inline-block"  dimension="{{this.dimensionName}}" mode="1"></div>
+                    <div class="dimension-time-series-tooltip hidden" dimension="{{this.dimensionName}}" mode="1"></div>
+                </div>
 
-                    </div><div class="dimension-timeseries" class="uk-display-inline-block"  dimension="{{this.dimensionName}}" mode="1"></div>
-                    <div class="dimension-time-series-tooltip" dimension="{{this.dimensionName}}" mode="1"></div>
-                </div>--}}-->
+
+
+                <!-- Contributors table -->
+
                 <h3>{{displayAlias this.dimensionName this.dimensionAlias}} total:</h3>
+
+                <!--Summary and details buttons -->
+                <div id="view-tabs" class="uk-button-group uk-float-right uk-margin">
+                    <button class="uk-button uk-active">
+                        Summary
+                    </button>
+                    <button class="uk-button">
+                        Details
+                    </button>
+                </div>
+
+
                 <table id="contributors-view-{{../name}}" class="uk-table contributors-table fixed-table-layout uk-margin-top" cell-spacing="0" width="100%">
                     <thead>
                     <!-- Time row-->
