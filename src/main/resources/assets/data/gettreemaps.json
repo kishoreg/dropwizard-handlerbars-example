@@ -2,7 +2,7 @@
     "ClickRev": {
         "dimensions": ["Status", "OperatingSystem", "DeviceChannel"],
 
-        "dim_0_tooltip": [
+        "tooltip": [
             ["id", "metric", "dimension", "cellvalue", "baseline_value", "current_value", "baseline_ratio", "current_ratio", "delta_percent_change", "contribution_difference", "volume_difference"],
             ["0", "ClickRev", "Status", "1", 24662.654871487997, 31607.47983568935, 0.8996085182130453, 0.8815727725346136, 0.2815927563512283, -0.0180357456784317, 0.2533232422806556],
             ["1", "ClickRev", "Status", "4", 2553.2330197111196, 4090.6487885090683, 0.0931331272113105, 0.1140933922191221, 0.6021447149277023, 0.0209602650078115, 0.05607962033498],

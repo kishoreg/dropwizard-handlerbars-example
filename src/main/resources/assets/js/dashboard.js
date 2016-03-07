@@ -617,6 +617,45 @@ $(document).ready(function() {
 
             function drawChart(){
                 console.log("drawChart called");
+
+                function showTreeMapTooltip(row, size, value){
+
+                    var currentTable = $(this.ma).attr('id');
+                    console.log("this", this)
+                    console.log("$this", $(this))
+                    var tableMetricDim = currentTable.substr(0, currentTable.length -10)
+                    //console.log('tableMetricDim', tableMetricDim)
+                    var dataMode = currentTable.substr(currentTable.length -1, 1)
+                    var dataTable = tableMetricDim + '_data_' + dataMode
+                    var indexStr =  Treemap[ dataTable ].getValue(row, 0)
+                    if(isNaN(indexStr)){
+                        return "";
+                    }
+                    var index = Number(indexStr)
+
+                    //Tooltip Data columns
+                    //['id',  'metric','dimension','cellvalue','baseline_value', 'current_value','baseline_ratio', 'current_ratio','delta_percent_change', 'contribution_difference', 'volume_difference' ],
+                    var cellValue = Tooltip.tooltipData.getValue(Number(index), 3) == "" ? "unknown" : Tooltip.tooltipData.getValue(Number(index), 3)
+                    var baseline = (Tooltip.tooltipData.getValue(Number(index), 4)).toFixed(2).replace(/\.?0+$/,'')
+                    var current = (Tooltip.tooltipData.getValue(Number(index), 5)).toFixed(2).replace(/\.?0+$/,'')
+                    var deltaValue = (current - baseline).toFixed(2).replace(/\.?0+$/,'')
+                    var currentRatio = (Tooltip.tooltipData.getValue(Number(index), 7) * 100).toFixed(2).replace(/\.?0+$/,'');
+                    var contributionDifference = (Tooltip.tooltipData.getValue(Number(index), 9) * 100).toFixed(2).replace(/\.?0+$/,'');
+                    return '<div class="treemap-tooltip">' +
+                        '<table>' +
+                        '<tr><td>value : </td><td><a class="tooltip-link" href="#" rel="'+ Tooltip.tooltipData.getValue(Number(index), 2) +'">' +  cellValue + '</a></td></tr>' +
+                        '<tr><td>baseline value : </td><td>' +  baseline + '</td></tr>' +
+                        '<tr><td>current value : </td><td>'+ current + '</td></tr>' +
+                        '<tr><td>delta value : </td><td>' + deltaValue + '</td></tr>' +
+                        '<tr><td>delta (%) : </td><td>' + (Tooltip.tooltipData.getValue(Number(index), 8) *100).toFixed(2) + '</td></tr>' +
+                        '<tr><td>change in contribution (%) : </td><td>' + currentRatio +'(' + contributionDifference +')' + '</td></tr>' +
+                        '</table>' +
+                        '</div>'
+                }
+
+
+
+
                 var options = {
                     maxDepth: 2,
                     minColorValue: -25,
@@ -627,7 +666,8 @@ $(document).ready(function() {
                     headerHeight: 0,
                     fontColor: '#000',
                     showScale: false,
-                    highlightOnMouseOver: true
+                    highlightOnMouseOver: true//,
+                    //generateTooltip : showTreeMapTooltip
                 }
 
                 for(metric in data){
@@ -652,6 +692,51 @@ $(document).ready(function() {
                     }
                 }
 
+                //After all the content loaded set the fontcolor of the cells based on the brightness of the background color
+                function fontColorOverride(cell) {
+
+                    var cellObj = $(cell);
+                    var hex = cellObj.attr("fill");
+
+                    var colorIsLight = function (r, g, b) {
+                        // Counting the perceptive luminance
+                        // human eye favors green color...
+                        var a = 1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                        return (a < 0.5);
+                    }
+
+
+                    function hexToRgb(hex) {
+                        // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+                        var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+                        hex = hex.replace(shorthandRegex, function (m, r, g, b) {
+                            return r + r + g + g + b + b;
+                        });
+
+                        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                        return result ? {
+                            r: parseInt(result[1], 16),
+                            g: parseInt(result[2], 16),
+                            b: parseInt(result[3], 16)
+                        } : null;
+                    }
+
+                    if (hexToRgb(hex)) {
+                        var textColor = colorIsLight(hexToRgb(hex).r, hexToRgb(hex).g, hexToRgb(hex).b) ? '#000000' : '#ffffff';
+                        cellObj.next('text').attr('fill', textColor);
+                    }
+
+                };
+                var area = $("#display-chart-section")
+                $("rect", area).each( function(index,cell){
+                    fontColorOverride(cell);
+                });
+
+                $("g", area).on("mouseout", function(event){
+                    if($(event.currentTarget).prop("tagName") === "g"){
+                        fontColorOverride($("rect", event.currentTarget));
+                    }
+                });
 
             }
 
