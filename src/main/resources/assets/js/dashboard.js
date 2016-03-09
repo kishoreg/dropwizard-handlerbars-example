@@ -271,8 +271,7 @@ $(document).ready(function() {
                 }
             });
 
-
-            for(var x= 0, len = selectedDimensionValues.length; x < 2; x++){
+            for(var x = 0, len = selectedDimensionValues.length; x < len; x++){
 
                 var dimensionBaselineData = {};
                 var dimensionCurrentData = {};
@@ -282,8 +281,8 @@ $(document).ready(function() {
                 dimensionBaselineData.dashes = {}
                 dimensionBaselineData.dashes.show = true;
 
-                dimensionBaselineData.color = legendColors[0];
-                dimensionCurrentData.color = legendColors[0];
+                dimensionBaselineData.color = legendColors[x];
+                dimensionCurrentData.color = legendColors[x];
 
                 dimensionBaselineData.data = [];
                 dimensionCurrentData.data = [];
@@ -293,7 +292,7 @@ $(document).ready(function() {
                 dimensionBaselineData.xTicksCurrent = [];
 
 
-                for (var t = 0, len = options.data["timebuckets"].length; t < len; t++) {
+                for (var t = 0, tlen = options.data["timebuckets"].length; t < tlen; t++) {
 
                     //add baseline and current moments
                     var cellBaselineTime = moment(options.data["timebuckets"][t][0]).valueOf();
@@ -317,10 +316,6 @@ $(document).ready(function() {
                     dimensionCurrentData.xaxis = 2;
                     dimensionBaselineData.data.push([cellBaselineTime, baselineValue]);
                     dimensionCurrentData.data.push([cellCurrentTime, currentValue]);
-
-
-
-
                 }
 
                 dimTimeseriesData.push(dimensionBaselineData, dimensionCurrentData);
@@ -442,22 +437,10 @@ $(document).ready(function() {
             var tooltip = $(".dimension-timeseries-tooltip[dimension='pageKey'][mode='1']")
             $(".dimension-timeseries[dimension='pageKey']").bind("plothover", function(event, pos, item) {
                 if (item) {
+
                     var dateString = moment.utc(item.datapoint[0]).tz(getTimeZone()).format("YYYY-MM-DD HH:mm z")
                     var value = item.datapoint[1];
-
-                    if (item.series.label.indexOf("ANOMALY_") >= 0) {
-                        //var metric =  item.series.label.substring('ANOMALY_'.length, item.series.label.indexOf(' '))
-                        tooltip.html("Tooltip")
-                            /* .css({
-                             top: item.pageY + 5,
-                             right: $(window).width() - item.pageX,
-                             'background-color': 'white',
-                             border: '1px solid red',
-                             'z-index': 1000
-                             })*/
-                            .fadeIn(100)
-                    } else {
-                        tooltip.html("tooltip 2")//item.series.label + " = " + value + " @ " + dateString)
+                    tooltip.html("tooltip 2")//item.series.label + " = " + value + " @ " + dateString)
                             /* .css({
                              top: item.pageY + 5,
                              right: $(window).width() - item.pageX,
@@ -467,9 +450,9 @@ $(document).ready(function() {
                              })*/
                             .fadeIn(100)
                     }
-                } else {
+
                     tooltip.hide()
-                }
+
             })
     }
 
