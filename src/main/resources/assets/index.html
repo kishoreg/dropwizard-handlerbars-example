@@ -167,10 +167,7 @@
 
 
 <div id="chart-area" class="uk-clearfix grid">
-    <div id="chart-control" class="col-1-3 abs-pos-sidenav" >
-        <div id="advanced-settings-entry" style="height:44px">
-            <span>Advanced Settings <i class="uk-icon-gear"></i></span>
-        </div>
+    <div id="chart-control" class="col-1-3 abs-pos-sidenav">
         <div id="chart-summary" style="height:60px">
             <p id="chart-summary-header">Summary
             </p>
@@ -198,6 +195,9 @@
 
 <section id="metric-timeseries-section" class="">
     <script id="metric-time-series-legend-template" type="text/x-handlebars-template">
+
+         <p class="time" currentUTC="{{this.currentUTC}}" title="{{this.baselineUTC}}">baseline:  {{this.currentUTC}} current: {{this.baselineUTC}}</p>
+
     <div id="metric-time-series-placeholder" class="uk-display-inline-block" style="width: 95%; height: 300px;"></div>
     <ul id="metric-time-series-legend">
             {{#each metrics}}
@@ -274,7 +274,7 @@
                 <p class="dimension-title hidden"> {{displayAlias this.dimensionName this.dimensionAlias}}</p>
 
                 <div class="dimension-timeseries-section" dimension="{{this.dimensionName}}">
-                    <div class="uk-button-group dimension-timeseries-toggle-buttons uk-display-block" data-uk-button style="margin-bottom: 15px;">
+                    <div class="uk-button-group dimension-timeseries-toggle-buttons uk-display-block uk-float-right uk-margin-large" data-uk-button style="margin-bottom: 15px;">
                         <button class="uk-button dimension-timeseries-mode" id="dimension-timeseries-total-change-percent" mode="0">
                             <i class="uk-icon-eye"></i> Value
                         </button>

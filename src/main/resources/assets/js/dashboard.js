@@ -110,32 +110,6 @@ $(document).ready(function() {
         })
     }
 
-    /*function getTemplate(url){
-        return $.ajax({
-            url: url,
-            type: 'get',
-            dataType: 'script',
-            statusCode: {
-                404: function() {
-                    $("#error").empty()
-                    var warning = $('<div></div>', { class: 'uk-alert uk-alert-warning' })
-                    warning.append($('<p></p>', { html: 'No data available. (Error code: 404)' }))
-                    $("#error").append(warning)
-                },
-                500: function() {
-                    $("#error").empty()
-                    var error = $('<div></div>', { class: 'uk-alert uk-alert-danger' })
-                    error.append($('<p></p>', { html: 'Internal server error' }))
-                    $("#time-input-form-error").append(error)
-                }
-            }
-            //,
-            //beforeSend: showLoaderFn()
-        }).always(function(){
-            //hideLoaderFn();
-        })
-    }*/
-
     getData("data/getdataset.json").done( function(data){
         /* Handelbars template for collections dropdown */
         var result_collections_template = template_collections(data);
@@ -492,9 +466,6 @@ $(document).ready(function() {
     $("#overview-btn").on("click", function(){
         getData("data/getmetrics.json").done(function(data){
 
-            //Delete this temporary var modification once api is ready
-            var data = data.testData2;
-
             $("#display-chart-section").empty();
 
             /* Handelbars template for time series legend */
@@ -524,17 +495,13 @@ $(document).ready(function() {
     $("#contributors-btn").on("click", function(){
         getData("data/getmetrics.json").done(function(data) {
 
-            //Delete this temporary var modification once api is ready
-            var data = data.testData3;
-
-
             //Handelbars contributors table template
             $("#display-chart-section").empty()
             var result_contributors_template = template_contributors_table(data)
             $("#display-chart-section").append(result_contributors_template);
 
-            $("#chart-summary").append($($("#display-chart-section .metric-title")[0]).html() )  ;
-            $("#chart-summary").append($($("#display-chart-section .dimension-title")[0]).html() )  ;
+           // $("#chart-summary").append($($("#display-chart-section .metric-title")[0]).html() )  ;
+           // $("#chart-summary").append($($("#display-chart-section .dimension-title")[0]).html() )  ;
 
 
             //Create timeseries
