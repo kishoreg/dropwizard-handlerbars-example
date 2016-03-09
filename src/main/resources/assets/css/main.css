@@ -53,6 +53,12 @@ ul, ol {
     background-color: #f5f5f5;
 }
 
+
+.dashboard-settings-label.form-label{
+    padding-top: 30px;
+    height: 60px;
+}
+
 .time-form-item{
     margin-right:15px;
 }

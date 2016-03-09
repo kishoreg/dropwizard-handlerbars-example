@@ -3,6 +3,11 @@ $(document).ready(function() {
     /** --- 1) Register Handelbars helpers --- **/
     Handlebars.registerHelper('colorByName', function(name) {
         //Assign a line color to each metric on the time-series by turn the name into hexadecimal colorcode
+        if(name == "?"){
+            name = "other"
+        }else if(name == ""){
+            name = "unknown"
+        }
         return "#" + ( parseInt(name, 36) + 16777216 ).toString(16).substring(0, 6)
     });
 
@@ -99,13 +104,13 @@ $(document).ready(function() {
                 }
             }
             //,
-            //beforeSend: showLoaderFn()
+            //todo: beforeSend: showLoaderFn()
         }).always(function(){
-            //hideLoaderFn();
+           //todo: hideLoaderFn();
         })
     }
 
-    function getTemplate(url){
+    /*function getTemplate(url){
         return $.ajax({
             url: url,
             type: 'get',
@@ -129,16 +134,16 @@ $(document).ready(function() {
         }).always(function(){
             //hideLoaderFn();
         })
-    }
+    }*/
 
     getData("data/getdataset.json").done( function(data){
         /* Handelbars template for collections dropdown */
         var result_collections_template = template_collections(data);
         $("#landing-collection").html(result_collections_template);
-    })
+    });
 
     // Assign background color value to each heat-map-cell
-    function calcHeatMapBG() {
+    function calcHeatMapBG(){
         $(".heat-map-cell").each(function (i, cell) {
             calcHeatMapCellBackground(cell);
         })
@@ -177,7 +182,6 @@ $(document).ready(function() {
             metricBaselineData.label =  selectedMetrics[i];
             metricCurrentData.label =  selectedMetrics[i];
 
-
             metricBaselineData.dashes = {}
             metricBaselineData.dashes.show = true;
 
@@ -195,7 +199,7 @@ $(document).ready(function() {
 
                 var cellBaselineTime = moment(ajaxData["timebuckets"][t][0]).valueOf()
                 var cellCurrentTime = moment(ajaxData["timebuckets"][t][1]).valueOf()
-                var metricObj = ajaxData.metrics.filter(function (metric) { return metric.name == selectedMetrics[i]})[0];
+                var metricObj = ajaxData.metrics.filter(function (metric){ return metric.name == selectedMetrics[i]})[0];
 
                 xTicksBaseline.push( moment(ajaxData["timebuckets"][t][0]).valueOf() )
                 xTicksCurrent.push( moment(ajaxData["timebuckets"][t][1]).valueOf() )
@@ -243,101 +247,161 @@ $(document).ready(function() {
         });
     }
 
-
-
-
     function createPlotData(options){
-
         var dimTimeseriesData = [];
         var selectedMetric = $("[selected] a", $('#view-metric-selector')).html().trim();
         var selectedMetricObj = options['data']['metrics']; //data.metrics.filter(function (metric) { return metric.name == selectedMetric});
-        console.log("options",options.data);
 
         if(typeof options.selectedDimension  == "undefined"){
-
             var selectedDimensionObj = selectedMetricObj[0]['dimensions'][0];
         }else{
-
-
             var selectedDimensionObj = $(selectedMetricObj[0]).filter(function (dimension) { return dimension.dimensionName == options.selectedDimension});
         }
 
-        var vlen = selectedDimensionObj.dimensionValues.length;
+        if(options.mode == "baseVsCurrent"){
 
-        //for each dimension value create the following object
-        for(var i = 0; i<vlen; i++){
-            var plotDimensionValObj = {};
+            var selectedDimensionValues = [];
+            var legendColors = [];
+            var currentDimensionWrapper = $(".dimension-section-wrapper[rel=" + selectedMetricObj[0]['dimensions'][0]['dimensionName'] +"]");
+            $(".time-series-dimension-checkbox", currentDimensionWrapper ).each(function(i, checkbox) {
+                var checkboxObj = $(checkbox);
+                if (checkboxObj.is(':checked')){
+                    selectedDimensionValues.push( checkboxObj.val());
+                    legendColors.push(checkboxObj.attr("color"));
+                }
+            });
 
 
-            plotDimensionValObj.label = selectedDimensionObj.dimensionValues[i]['dimValue'];
-            if(plotDimensionValObj.label == "?"){
-                plotDimensionValObj.label = "OTHER"
-            }else if(plotDimensionValObj.label == ""){
-                plotDimensionValObj.label == "UNKNOWN"
-            }
+            for(var x= 0, len = selectedDimensionValues.length; x < 2; x++){
 
-            plotDimensionValObj.points = {};
-            var color = "#" + ( parseInt(plotDimensionValObj.label, 36) + 16777216 ).toString(16).substring(0, 6)
+                var dimensionBaselineData = {};
+                var dimensionCurrentData = {};
 
-            plotDimensionValObj['points']['fillColor'] =  color;
-            plotDimensionValObj.color = color;
+                dimensionBaselineData.label = selectedDimensionValues[x];
 
-            plotDimensionValObj['points']['size'] = 5;
-            plotDimensionValObj.data = [];
-            for(var t = 0, len = options.data.timebuckets.length; t<len; t++){
-                //Display the discrete or the cumulative values
+                dimensionBaselineData.dashes = {}
+                dimensionBaselineData.dashes.show = true;
 
-                switch(options.cumulative + " | " +  options.contributionToTotal){
+                dimensionBaselineData.color = legendColors[0];
+                dimensionCurrentData.color = legendColors[0];
 
-                    //cumulative contribution to total
-                    case "true | true":
-                        //plotDimensionValObj.data.push([ moment(data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['cumulative_contribution_to_total'][t] ])
-                        break;
-                    //cumulative value
-                    case "true | false": plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['cumulativeData'][t*3+1] ])
-                        break;
-                    //discrete contribution to total
-                    case "false | true":  plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['contribution_to_total'][t] ])
-                        break;
-                    //value
-                    case "false | false":  plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['data'][t*3+1] ])
-                        break;
+                dimensionBaselineData.data = [];
+                dimensionCurrentData.data = [];
+
+                //Ticks to display on x axes
+                dimensionBaselineData.xTicksBaseline = [];
+                dimensionBaselineData.xTicksCurrent = [];
+
+
+                for (var t = 0, len = options.data["timebuckets"].length; t < len; t++) {
+
+                    //add baseline and current moments
+                    var cellBaselineTime = moment(options.data["timebuckets"][t][0]).valueOf();
+                    var cellCurrentTime = moment(options.data["timebuckets"][t][1]).valueOf();
+                    var dimensionValObj = selectedDimensionObj["dimensionValues"].filter(function (value){ return value.dimValue == selectedDimensionValues[x]});
+
+                    dimensionBaselineData.xTicksBaseline.push(cellBaselineTime)
+                    dimensionBaselineData.xTicksCurrent.push(cellCurrentTime)
+
+
+                    //Display the discrete or the cumulative values
+                    if ($("#funnel-cumulative.uk-active").length > 0) {
+                        var baselineValue = dimensionValObj[0].cumulativeData[3 * t];
+                        var currentValue = dimensionValObj[0].cumulativeData[3 * t + 1];
+                    } else {
+                        var baselineValue = dimensionValObj[0].data[3 * t];
+                        var currentValue = dimensionValObj[0].data[3 * t + 1];
+                    }
+
+                    //Create 2nd x axis
+                    dimensionCurrentData.xaxis = 2;
+                    dimensionBaselineData.data.push([cellBaselineTime, baselineValue]);
+                    dimensionCurrentData.data.push([cellCurrentTime, currentValue]);
+
+
+
+
                 }
 
-                plotDimensionValObj.timebuckets = options.data.timebuckets
-
-
-                /*if($("#funnel-cumulative.uk-active").length > 0 ){
-                 //data.push([ milliseconds, value])
-                 plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['cumulativeData'][t*3+1] ])
-                 }else{
-
-                 //data.push([ milliseconds, value])
-                 plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['data'][t*3+1] ])
-                 }*/
+                dimTimeseriesData.push(dimensionBaselineData, dimensionCurrentData);
             }
 
-            dimTimeseriesData.push( plotDimensionValObj )
+            return dimTimeseriesData
+        }else{
+            var vlen = selectedDimensionObj.dimensionValues.length;
+
+            //for each dimension value create the following object
+            for(var i = 0; i<vlen; i++){
+                var plotDimensionValObj = {};
+
+
+                plotDimensionValObj.label = selectedDimensionObj.dimensionValues[i]['dimValue'];
+                if(plotDimensionValObj.label == "?"){
+                    plotDimensionValObj.label = "OTHER"
+                }else if(plotDimensionValObj.label == ""){
+                    plotDimensionValObj.label == "UNKNOWN"
+                }
+
+                plotDimensionValObj.points = {};
+                var color = "#" + ( parseInt(plotDimensionValObj.label, 36) + 16777216 ).toString(16).substring(0, 6)
+
+
+                plotDimensionValObj['points']['fillColor'] =  color;
+                plotDimensionValObj.color = color;
+
+
+
+                plotDimensionValObj['points']['size'] = 5;
+                plotDimensionValObj.data = [];
+
+
+
+                for(var t = 0, len = options.data.timebuckets.length; t<len; t++){
+                    //Display the discrete or the cumulative values
+
+
+
+                    switch(options.cumulative + " | " +  options.mode ){
+
+                        //cumulative contribution to total
+                        case "true | contributionToTotal":
+                            //plotDimensionValObj.data.push([ moment(data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['cumulative_contribution_to_total'][t] ])
+                            break;
+                        //cumulative value
+                        case "true | value": plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['cumulativeData'][t*3+1] ])
+                            break;
+                        //discrete contribution to total
+                        case "false | contributionToTotal":  plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['contribution_to_total'][t] ])
+                            break;
+                        //discrete value
+                        case "false | value":  plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['data'][t*3+1] ])
+                            break;
+                    }
+                    plotDimensionValObj.timebuckets = options.data.timebuckets
+
+                    /*if($("#funnel-cumulative.uk-active").length > 0 ){
+                     //data.push([ milliseconds, value])
+                     plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['cumulativeData'][t*3+1] ])
+                     }else{
+
+                     //data.push([ milliseconds, value])
+                     plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['data'][t*3+1] ])
+                     }*/
+                }
+
+                dimTimeseriesData.push( plotDimensionValObj )
+            }
+
+        return dimTimeseriesData
+
         }
-
-        console.log("dimTimeseriesData", dimTimeseriesData )
-
-        return dimTimeseriesData /* [
-         { label: "abook-import-impression-submit", data: d1, points: { fillColor: "#4572A7", size: 5 }, color: '#4572A7' },
-         { label: "OTHER", data: d2, points: { fillColor: "#AA4643", size: 5 }, color: '#AA4643' },
-         { label: "UNKNOWN", data: d3, points: { fillColor: "#89A54E", size: 5 }, color: '#89A54E', timebuckets : [] }
-         ]*/
     }
 
     function drawDimTimeSeries(placeholder, data, customOptions){
-        console.log('data', data)
-
         //Create the x axis ticks
         var xTicks = [];
         for (var t = 0, len = data[0]["timebuckets"].length; t < len; t++){  //ajaxdata
-
             xTicks.push( moment(data[0]["timebuckets"][t][1]).valueOf() )
-
         };
         var xTickFormat = "MM-DD-HH z";
 
@@ -346,8 +410,6 @@ $(document).ready(function() {
             xaxis: {
                 ticks: xTicks,
                 tickFormatter: function(time) {
-                    console.log("time",time);
-                    console.log("time tz",moment.utc(time).tz(jstz().timezone_name).format('MM-DD HH z'));
                     return moment.utc(time).tz(jstz().timezone_name).format('MM-DD HH z');
                 }
             },
@@ -356,7 +418,6 @@ $(document).ready(function() {
                     show: true,
                     fill: true
                 },
-                stack: true,
                 points: {
                     show: false
                 }
@@ -413,6 +474,37 @@ $(document).ready(function() {
     }
 
 
+    function drawDimValueTimeSeries(placeholder, data, customOptions){
+
+        //build options object and extend it with custom options
+        var defaultOptions ={
+            xaxes : [
+                {ticks: data[0]['xTicksBaseline'],
+                    tickFormatter: function (time) {
+                        return moment.utc(time).tz(jstz().timezone_name).format("MM-DD-HH z")
+                    }
+                },{
+                ticks: data[0]['xTicksCurrent'],
+                tickFormatter: function(time) {
+                    return moment.utc(time).tz(jstz().timezone_name).format("MM-DD-HH z")
+                }
+            }],
+            legend: {
+                show: false
+            },
+            grid: {
+                markingsStyle : 'dashed',
+                clickable: true,
+                hoverable: true
+            }
+        }
+        //merging the custom settings into the default settings object
+        var options = $.extend(true, {}, defaultOptions, customOptions)
+
+        //Draw timeseries with Flotjs
+        $.plot(placeholder, data, options);
+    }
+
     /** Eventlisteners **/
     $("#overview-btn").on("click", function(){
         getData("data/getmetrics.json").done(function(data){
@@ -441,18 +533,6 @@ $(document).ready(function() {
                     document.getElementById('metric-time-series-placeholder').innerHTML = '<div id="metric-time-series-error" class="uk-alert uk-alert-danger" >Choose at least 1 metric.</div>';
                 }
             })
-
-
-
-            /*var firstCheckbox = document.getElementsByClassName("time-series-metric-checkbox")[0];
-
-             var clickEvent = new MouseEvent("click", {
-             "view": window,
-             "bubbles": true,
-             "cancelable": false
-             });
-             firstCheckbox.dispatchEvent(clickEvent);*/
-
             $($(".time-series-metric-checkbox")[0]).click();
         });
     })
@@ -460,11 +540,9 @@ $(document).ready(function() {
     //Contributors section
     $("#contributors-btn").on("click", function(){
         getData("data/getmetrics.json").done(function(data) {
-            console.log("contributors  data", data)
+
             //Delete this temporary var modification once api is ready
             var data = data.testData3;
-
-
 
 
             //Handelbars contributors table template
@@ -472,23 +550,26 @@ $(document).ready(function() {
             var result_contributors_template = template_contributors_table(data)
             $("#display-chart-section").append(result_contributors_template);
 
+            $("#chart-summary").append($($("#display-chart-section .metric-title")[0]).html() )  ;
+            $("#chart-summary").append($($("#display-chart-section .dimension-title")[0]).html() )  ;
+
+
             //Create timeseries
             var customOptionsValue = {};
             customOptionsValue.legend = {container: $(".dimension-timeseries-legend[mode='0']")};
+            customOptionsValue.stack =  true;
 
-
-            //todo: metrics[0] has to refer to e selected metric
+            //todo: metrics[0] has to refer to the selected metric
             for (var i= 0, len = data['metrics'][0]['dimensions'].length; i<len; i++){
 
-                console.log("nested data", data['metrics'][0]['dimensions'])
-                console.log("nested data", data['metrics'][0]['dimensions'][i]['dimensionName'])
 
                 var selectedDim = data['metrics'][0]['dimensions'][i]['dimensionName'];
-                console.log("i", i)
-                console.log("selectedDim", selectedDim)
-                //Timeseries of dimension values
-                drawDimTimeSeries($(".dimension-timeseries[dimension='"+ selectedDim +"'][mode='0']"), createPlotData({data: data, cumulative: false, contributionToTotal: false}), customOptionsValue); //createPlotData({cumulative : false, contributionToTotal : false})
 
+                //Timeseries of dimension values
+                drawDimTimeSeries($(".dimension-timeseries[dimension='"+ selectedDim +"'][mode='0']"), createPlotData({data: data, cumulative: false, mode: "value"}), customOptionsValue);
+
+
+                //Timeseries of contribution to total
                 var customOptionsPercent = {};
                 customOptionsPercent.yaxis = {
                     min: 0,
@@ -501,24 +582,25 @@ $(document).ready(function() {
                         [100, "100%"]
                     ]
                 };
-
-                customOptionsPercent.legend = {container: $(".dimension-timeseries-legend[mode='1']")}
-
-
-                //Timeseries of contribution to total
+                customOptionsPercent.legend = {container: $(".dimension-timeseries-legend[mode='1']")};
+                customOptionsPercent.stack =  true;
                 drawDimTimeSeries(
-                    $(".dimension-timeseries[dimension='"+ selectedDim +"'][mode='1']"), createPlotData({data: data, cumulative: false, contributionToTotal: true}),
+                    $(".dimension-timeseries[dimension='"+ selectedDim +"'][mode='1']"), createPlotData({data: data, cumulative: false, mode: "contributionToTotal"}),
                     customOptionsPercent);
-
                 $(".dimension-timeseries-legend[mode='1'] table").addClass("hidden");
+
+
+                //Timeseries of one dimension value baseline vs current
+                var customOptionsBaseVsCurrent = {};
+                //customOptionsBaseVsCurrent.legend = {container: $(".dimension-timeseries-legend[mode='2']")}
+
+                drawDimValueTimeSeries($(".dimension-timeseries[dimension='"+ selectedDim +"'][mode='2']"), createPlotData({data: data, mode: "baseVsCurrent"}), customOptionsBaseVsCurrent);
 
                 // Dimension timeseries related event listeners
                 $(".dimension-timeseries-mode").click(function() {
 
                     var currentMode = $(this).attr("mode")
-
                     var currentMetricArea = $(this).closest(".dimension-timeseries-section");
-
 
                     // Set in URI
                     //var hash = parseHashParameters(window.location.hash)
@@ -544,18 +626,13 @@ $(document).ready(function() {
 
                 })
 
-                $(".select_all_cell").click();
-                $(".select_all_cell").click();
 
 
+                $(".select_all_cell").click();
+                $(".select_all_cell").click();
             }
 
-
-
-
-
             /* contributors' eventlisteners */
-
 
             // Summary and details tab toggle
             $("#view-tabs").on("click", function(){
@@ -616,45 +693,6 @@ $(document).ready(function() {
             $("#display-chart-section").html(result_treemap_template);
 
             function drawChart(){
-                console.log("drawChart called");
-
-                function showTreeMapTooltip(row, size, value){
-
-                    var currentTable = $(this.ma).attr('id');
-                    console.log("this", this)
-                    console.log("$this", $(this))
-                    var tableMetricDim = currentTable.substr(0, currentTable.length -10)
-                    //console.log('tableMetricDim', tableMetricDim)
-                    var dataMode = currentTable.substr(currentTable.length -1, 1)
-                    var dataTable = tableMetricDim + '_data_' + dataMode
-                    var indexStr =  Treemap[ dataTable ].getValue(row, 0)
-                    if(isNaN(indexStr)){
-                        return "";
-                    }
-                    var index = Number(indexStr)
-
-                    //Tooltip Data columns
-                    //['id',  'metric','dimension','cellvalue','baseline_value', 'current_value','baseline_ratio', 'current_ratio','delta_percent_change', 'contribution_difference', 'volume_difference' ],
-                    var cellValue = Tooltip.tooltipData.getValue(Number(index), 3) == "" ? "unknown" : Tooltip.tooltipData.getValue(Number(index), 3)
-                    var baseline = (Tooltip.tooltipData.getValue(Number(index), 4)).toFixed(2).replace(/\.?0+$/,'')
-                    var current = (Tooltip.tooltipData.getValue(Number(index), 5)).toFixed(2).replace(/\.?0+$/,'')
-                    var deltaValue = (current - baseline).toFixed(2).replace(/\.?0+$/,'')
-                    var currentRatio = (Tooltip.tooltipData.getValue(Number(index), 7) * 100).toFixed(2).replace(/\.?0+$/,'');
-                    var contributionDifference = (Tooltip.tooltipData.getValue(Number(index), 9) * 100).toFixed(2).replace(/\.?0+$/,'');
-                    return '<div class="treemap-tooltip">' +
-                        '<table>' +
-                        '<tr><td>value : </td><td><a class="tooltip-link" href="#" rel="'+ Tooltip.tooltipData.getValue(Number(index), 2) +'">' +  cellValue + '</a></td></tr>' +
-                        '<tr><td>baseline value : </td><td>' +  baseline + '</td></tr>' +
-                        '<tr><td>current value : </td><td>'+ current + '</td></tr>' +
-                        '<tr><td>delta value : </td><td>' + deltaValue + '</td></tr>' +
-                        '<tr><td>delta (%) : </td><td>' + (Tooltip.tooltipData.getValue(Number(index), 8) *100).toFixed(2) + '</td></tr>' +
-                        '<tr><td>change in contribution (%) : </td><td>' + currentRatio +'(' + contributionDifference +')' + '</td></tr>' +
-                        '</table>' +
-                        '</div>'
-                }
-
-
-
 
                 var options = {
                     maxDepth: 2,
@@ -689,7 +727,48 @@ $(document).ready(function() {
                         Treemap["metric_" + metric + "_dim_" + i + "_treemap_0"].draw(Treemap["formattedData_metric_" + metric + "_dim_" + i + "_treemap_0"], options);
                         Treemap["metric_" + metric + "_dim_" + i + "_treemap_1"].draw(Treemap["formattedData_metric_" + metric + "_dim_" + i + "_treemap_1"], options);
                         Treemap["metric_" + metric + "_dim_" + i + "_treemap_2"].draw(Treemap["formattedData_metric_" + metric + "_dim_" + i + "_treemap_2"], options);
+
+                        //Treemap["metric_"+ metric + "_tooltipData"] = google.visualization.arrayToDataTable(data[metric]["tooltip"])
+                        Treemap["dataTable"] = google.visualization.arrayToDataTable(data[metric]["tooltip"])
                     }
+
+                function showTreeMapTooltip(row, size, value){
+
+                    var currentTable = $(this.ma).attr('id');
+
+                    var tableMetricDim = currentTable.substr(0, currentTable.length -10);
+                    var dataMode = currentTable.substr(currentTable.length -1, 1);
+                    var dataTable = tableMetricDim; //+ '_data_' + dataMode
+                    var indexStr =  Treemap[ dataTable ].getValue(row, 0);
+                    if(isNaN(indexStr)){
+                        return "";
+                    }
+                    var index = Number(indexStr)
+
+                    //Tooltip Data columns
+                    //['id',  'metric','dimension','cellvalue','baseline_value', 'current_value','baseline_ratio', 'current_ratio','delta_percent_change', 'contribution_difference', 'volume_difference' ],
+                    var cellValue = Tooltip.tooltipData.getValue(Number(index), 3) == "" ? "unknown" : Tooltip.tooltipData.getValue(Number(index), 3)
+                    var baseline = (Tooltip.tooltipData.getValue(Number(index), 4)).toFixed(2).replace(/\.?0+$/,'')
+                    var current = (Tooltip.tooltipData.getValue(Number(index), 5)).toFixed(2).replace(/\.?0+$/,'')
+                    var deltaValue = (current - baseline).toFixed(2).replace(/\.?0+$/,'')
+                    var currentRatio = (Tooltip.tooltipData.getValue(Number(index), 7) * 100).toFixed(2).replace(/\.?0+$/,'');
+                    var contributionDifference = (Tooltip.tooltipData.getValue(Number(index), 9) * 100).toFixed(2).replace(/\.?0+$/,'');
+                    return '<div class="treemap-tooltip">' +
+                        '<table>' +
+                        '<tr><td>value : </td><td><a class="tooltip-link" href="#" rel="'+ Tooltip.tooltipData.getValue(Number(index), 2) +'">' +  cellValue + '</a></td></tr>' +
+                        '<tr><td>baseline value : </td><td>' +  baseline + '</td></tr>' +
+                        '<tr><td>current value : </td><td>'+ current + '</td></tr>' +
+                        '<tr><td>delta value : </td><td>' + deltaValue + '</td></tr>' +
+                        '<tr><td>delta (%) : </td><td>' + (Tooltip.tooltipData.getValue(Number(index), 8) *100).toFixed(2) + '</td></tr>' +
+                        '<tr><td>change in contribution (%) : </td><td>' + currentRatio +'(' + contributionDifference +')' + '</td></tr>' +
+                        '</table>' +
+                        '</div>'
+                }
+
+
+
+
+
                 }
 
                 //After all the content loaded set the fontcolor of the cells based on the brightness of the background color
