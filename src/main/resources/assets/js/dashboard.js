@@ -180,7 +180,7 @@ $(document).ready(function() {
 
 
                 //Display the discrete or the cumulative values
-                if($("#funnel-cumulative.uk-active").length > 0 ){
+                if($("#cumulative.uk-active").length > 0 ){
                     var baselineValue = metricObj.cumulativeData[3*t];
                     var currentValue = metricObj.cumulativeData[3*t+1];
                 }else{
@@ -486,7 +486,7 @@ $(document).ready(function() {
                 }else{
                     document.getElementById('metric-time-series-placeholder').innerHTML = '<div id="metric-time-series-error" class="uk-alert uk-alert-danger" >Choose at least 1 metric.</div>';
                 }
-            })
+            });
             $($(".time-series-metric-checkbox")[0]).click();
         });
     })
@@ -575,17 +575,12 @@ $(document).ready(function() {
                     $('i', this).addClass("uk-icon-eye")
 
                 })
-
-
-
-                $(".select_all_cell").click();
-                $(".select_all_cell").click();
             }
 
             /* contributors' eventlisteners */
 
             // Summary and details tab toggle
-            $("#view-tabs").on("click", function(){
+            $("#sum-detail").on("click", function(){
                 if(!$(this).hasClass("uk-active")) {
                     $(".details-cell").toggleClass("hidden");
                     $(".subheader").toggleClass("hidden");
@@ -621,7 +616,7 @@ $(document).ready(function() {
              take the total of the cells' value in the column (if the row of the cell is checked  and the value id not N/A) and place the total into the total row.
              Then calculate the sum row ratio column cell value based on the 2 previous column's value.
              */
-            $(".contributors-table").on("click", $("input[checkbox]:not('.select_all_checkbox')"), function(event) {
+            $(".contributors-table").on("change", $("input[checkbox]:not('.select_all_checkbox')"), function(event) {
                 var checkbox = event.target;
                 if ($(checkbox).is(':checked')) {
                     $(checkbox).attr('checked', 'checked');
@@ -630,6 +625,12 @@ $(document).ready(function() {
                 }
                 sumColumn(checkbox)
             })
+
+            //Trigger click on load
+            $(".contributors-table .select_all_checkbox").each(function(){
+                $(this).trigger("click");
+            });
+
         });
     })
 
@@ -797,10 +798,31 @@ $(document).ready(function() {
         });
     })
 
+    //Eventlisteners
+
+
+    //Cumulative checkbox
+    $("#display-chart-section").on("click", ".cumulative", function() {
+
+        $(".discrete-values").toggleClass("hidden");
+        $(".cumulative-values").toggleClass("hidden");
+
+        //Trigger contributors total calculation
+        //var tableBodies = $(".contributors-table tbody");
+        //for (var i = 0, len = tableBodies.length; i < len; i++) {
+        //    sumColumn($("input[type = 'checkbox']", tableBodies[i])[0]);
+        //}
+        //Todo: feature:redraw metric timeseries using cumulative data
+        if($("#metric-time-series-placeholder").length > 0){}
+    });
+
+
     //Set initial view
 
     //On initial load start with overview view
     $("#overview-btn").click()
+
+
 
     var sidebar = $("#chart-control");
     sidebar.on("scroll", function(e) {

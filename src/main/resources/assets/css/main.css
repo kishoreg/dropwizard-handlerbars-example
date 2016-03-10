@@ -242,3 +242,12 @@ ul, ol {
     top:0;
     left:0;
 }
+
+/* overwriting UIkit css */
+.uk-button.uk-active,
+.uk-button:active,
+li.uk-active a {
+    background-color: #ddd;
+    color: #444;
+    font-weight: 800;
+}

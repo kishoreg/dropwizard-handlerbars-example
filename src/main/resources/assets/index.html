@@ -83,7 +83,7 @@
             </div>
         </li>
         <li id="view-metric-selector" class="dashboard-settings-li" >
-             <label class="dashboard-settings-label">Metrics
+            <label class="dashboard-settings-label">Metrics
             </label>
             <button class="uk-button" type="button"> totalFlows <i class="uk-icon-close"></i></button>
             <div class="add-btn uk-display-inline-block" data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true">
@@ -104,6 +104,9 @@
         <li class="dashboard-settings-li">
             <label class="dashboard-settings-label">Filters
             </label>
+            <button class="uk-button" type="button" dimension="countryCode" value="US"> countryCode: US <i class="uk-icon-close"></i></button>
+            <div class="add-btn uk-display-inline-block" data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true">
+                <button class="uk-button uk-button-primary" type="button"><i class="uk-icon-plus"></i></button>
         </li>
         <li class="dashboard-settings-li">
             <label class="dashboard-settings-label form-label">Settings
@@ -209,6 +212,21 @@
 
 <section id="custom-funnel-section" class="hidden" style="margin: 0;">
     <script id="funnels-table-template" type="text/x-handlebars-template">
+    <ul class="uk-display-inline-block uk-float-right">
+        <li data-uk-button-checkbox class="uk-display-inline-block uk-margin">
+            <br>
+            <button type="button" class="cumulative uk-button">Cumulative</button>
+        </li>
+
+        <li id="sum-detail" class="uk-display-inline-block uk-button-group uk-margin" data-uk-button-radio>
+            <button class="uk-button uk-active">
+                Summary
+            </button>
+            <button class="uk-button">
+                Details
+            </button>
+        </li>
+    </ul>
     <table id="funnels-table" class="uk-table dimension-view-overview-rendered">
 
             <thead>
@@ -298,9 +316,7 @@
 
                     <ul class="dimension-timeseries-legend uk-display-inline-block hidden"  dimension="{{this.dimensionName}}" mode="2">
                         {{#each this.dimensionValues}}
-
                         <li class="uk-display-inline-block hidden" ><input type="checkbox" class="time-series-dimension-checkbox" value="{{this.dimValue}}" checked color="{{colorByName this.dimValue}}"><div class="legend-color uk-display-inline-block" style="width: 10px; height: 10px; background: {{colorByName this.dimValue}}"></div> <label>{{displayDimensionValue this.dimValue}}</label></li>
-
                         {{/each}}
 
                     </ul>
@@ -312,16 +328,21 @@
 
                 <h3 class="uk-display-inline-block">{{displayAlias this.dimensionName this.dimensionAlias}}</h3>
                 <!--Summary and details buttons -->
-                <div id="view-tabs" class="uk-display-inline-block uk-button-group uk-float-right uk-margin">
-                    <button class="uk-button uk-active">
-                        Summary
-                    </button>
-                    <button class="uk-button">
-                        Details
-                    </button>
-                </div>
+                <ul class="uk-display-inline-block uk-float-right">
+                    <li data-uk-button-checkbox class="uk-display-inline-block uk-margin">
+                        <br>
+                        <button type="button" class="cumulative uk-button">Cumulative</button>
+                    </li>
 
-
+                    <li id="sum-detail" class="uk-display-inline-block uk-button-group uk-margin" data-uk-button-radio>
+                        <button class="uk-button uk-active">
+                            Summary
+                        </button>
+                        <button class="uk-button">
+                            Details
+                        </button>
+                    </li>
+                </ul>
                 <table id="contributors-view-{{../name}}" class="uk-table contributors-table fixed-table-layout uk-margin-top" cell-spacing="0" width="100%">
                     <thead>
                     <!-- Time row-->
@@ -363,7 +384,7 @@
 
                     <!-- Dimension total row discrete values-->
                     <tr class="discrete-values sum-row">
-                        <th class="select_all_cell"><input class="select_all_checkbox" value="1" type="checkbox" checked></th>
+                        <th class="select_all_cell"><input class="select_all_checkbox" value="1" type="checkbox"></th>
                         <th class="hidden"></th>
                         <th class="row-title"> Total:</th>
                         {{#each @root/timebuckets}}
@@ -375,7 +396,7 @@
 
                     <!-- Dimension total row cumulative values-->
                     <tr class="cumulative-values sum-row hidden">
-                        <th class="select_all_cell"><input class="select_all_checkbox" value="1" type="checkbox" checked></th>
+                        <th class="select_all_cell"><input class="select_all_checkbox" value="1" type="checkbox"></th>
                         <th class="hidden"></th>
                         <th class="row-title"> Total:</th>
                         {{#each @root/timebuckets}}
@@ -396,7 +417,7 @@
                     <!-- Table row dimension  discrete values-->
                     {{#each dimensionValues}}
                     <tr class="data-row discrete-values">
-                        <td class="checkbox-cell"><input value="1" type="checkbox" checked></td>
+                        <td class="checkbox-cell"><input value="1" type="checkbox"></td>
                         <td class="dimension dimension-cell hidden">{{displayAlias ../dimensionName ../dimensionAlias}}</td>
                         <td class="dimension-value-cell">{{displayDimensionValue dimValue}} </td>
                         {{#each data}}
@@ -414,7 +435,7 @@
                     <!-- Table row dimension  cumulative values-->
                     {{#each dimensionValues}}
                     <tr class="data-row cumulative-values hidden" dimension="{{../dimensionName}}">
-                        <td class="checkbox-cell"><input value="1" type="checkbox" checked></td>
+                        <td class="checkbox-cell"><input value="1" type="checkbox"></td>
                         <td class="dimension dimension-cell hidden">{{../dimensionName}}</td>
                         <td class="dimension-value-cell">{{displayDimensionValue dimValue}} </td>
                         {{#each cumulativeData}}
