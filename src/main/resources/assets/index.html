@@ -139,7 +139,7 @@
                         <label class="uk-form-label">
                             Granularity
                         </label>
-                        <div class="uk-button-group" data-uk-button-radio="">
+                        <div class="uk-button-group">
                             <button id="time-input-form-gran-hours" type="button" class="baseline-aggregate uk-button uk-active" unit="HOURS" value="3600000">HOUR</button>
                             <button id="time-input-form-gran-days" type="button" class="baseline-aggregate uk-button" unit="DAYS" value="86400000">DAY</button>
                         </div>
@@ -177,7 +177,7 @@
         </div>
         <section id="chart-types">
             <p id="chart-types-header">Charts</p>
-            <div  class="chart-selections" data-uk-button-radio="">
+            <div  class="chart-selections">
                 <button id="overview-btn" class="uk-button uk-form-controls-text uk-active" type="button">Overview</button>
                 <button id="heatmap-btn" class="uk-button uk-form-controls-text" type="button">Heatmap</button>
                 <button id="contributors-btn" class="uk-button uk-form-controls-text" type="button">Contributors</button>
@@ -213,12 +213,12 @@
 <section id="custom-funnel-section" class="hidden" style="margin: 0;">
     <script id="funnels-table-template" type="text/x-handlebars-template">
     <ul class="uk-display-inline-block uk-float-right">
-        <li data-uk-button-checkbox class="uk-display-inline-block uk-margin">
+        <li class="uk-display-inline-block uk-margin">
             <br>
             <button type="button" class="cumulative uk-button">Cumulative</button>
         </li>
 
-        <li id="sum-detail" class="uk-display-inline-block uk-button-group uk-margin" data-uk-button-radio>
+        <li id="sum-detail" class="uk-display-inline-block uk-button-group uk-margin">
             <button class="uk-button uk-active">
                 Summary
             </button>
@@ -292,7 +292,7 @@
                 <p class="dimension-title hidden"> {{displayAlias this.dimensionName this.dimensionAlias}}</p>
 
                 <div class="dimension-timeseries-section" dimension="{{this.dimensionName}}">
-                    <div class="uk-button-group dimension-timeseries-toggle-buttons uk-display-block uk-float-right uk-margin-large" data-uk-button style="margin-bottom: 15px;">
+                    <div class="uk-button-group dimension-timeseries-toggle-buttons uk-display-block uk-float-right uk-margin-large" style="margin-bottom: 15px;">
                         <button class="uk-button dimension-timeseries-mode" id="dimension-timeseries-total-change-percent" mode="0">
                             <i class="uk-icon-eye"></i> Value
                         </button>
@@ -329,12 +329,12 @@
                 <h3 class="uk-display-inline-block">{{displayAlias this.dimensionName this.dimensionAlias}}</h3>
                 <!--Summary and details buttons -->
                 <ul class="uk-display-inline-block uk-float-right">
-                    <li data-uk-button-checkbox class="uk-display-inline-block uk-margin">
+                    <li class="uk-display-inline-block uk-margin">
                         <br>
                         <button type="button" class="cumulative uk-button">Cumulative</button>
                     </li>
 
-                    <li id="sum-detail" class="uk-display-inline-block uk-button-group uk-margin" data-uk-button-radio>
+                    <li id="sum-detail" class="uk-display-inline-block uk-button-group uk-margin">
                         <button class="uk-button uk-active">
                             Summary
                         </button>
@@ -384,7 +384,7 @@
 
                     <!-- Dimension total row discrete values-->
                     <tr class="discrete-values sum-row">
-                        <th class="select_all_cell"><input class="select_all_checkbox" value="1" type="checkbox"></th>
+                        <th class="select_all_cell"><input class="select_all_checkbox" value="1" checked type="checkbox" rel="{{displayAlias this.dimensionName this.dimensionAlias}}" ></th>
                         <th class="hidden"></th>
                         <th class="row-title"> Total:</th>
                         {{#each @root/timebuckets}}
@@ -463,7 +463,7 @@
         <div class="metric-section-wrapper" rel="{{@key}}">
             <div class="dimension-heat-map-treemap-section">
 
-                <div class="uk-button-group dimension-treemap-toggle-buttons" data-uk-button-radio>
+                <div class="uk-button-group dimension-treemap-toggle-buttons">
                     <button class="uk-button dimension-treemap-mode" id="treemap_contribution-total-change-percent" mode="0">
                         <i class="uk-icon-eye-slash"></i> Percentage Change
                     </button>

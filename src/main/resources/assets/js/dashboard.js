@@ -577,21 +577,6 @@ $(document).ready(function() {
                 })
             }
 
-            /* contributors' eventlisteners */
-
-            // Summary and details tab toggle
-            $("#sum-detail").on("click", function(){
-                if(!$(this).hasClass("uk-active")) {
-                    $(".details-cell").toggleClass("hidden");
-                    $(".subheader").toggleClass("hidden");
-                    $('.contributors-table-time').attr('colspan', function(index, attr){
-                        return attr == 3 ? null : 3;
-                    });
-                    //$("#dimension-contributor-area table").toggleClass("fixed-table-layout");
-                    //$("#dimension-contributor-area .contributors-table-date").css("width","110px");
-                }
-            })
-
             //Calculate heatmap-cells-bg color
             calcHeatMapBG();
 
@@ -600,7 +585,6 @@ $(document).ready(function() {
 
             //Select-all-checkbox will set the other checkboxes of the table to checked/ unchecked
             $(".contributors-table").on("click",".select_all_checkbox",function(){
-
                 var currentTable =  $(this).closest("table");
 
                 if($(this).is(':checked')){
@@ -616,7 +600,7 @@ $(document).ready(function() {
              take the total of the cells' value in the column (if the row of the cell is checked  and the value id not N/A) and place the total into the total row.
              Then calculate the sum row ratio column cell value based on the 2 previous column's value.
              */
-            $(".contributors-table").on("change", $("input[checkbox]:not('.select_all_checkbox')"), function(event) {
+            $(".contributors-table").on("click", $("input[checkbox]:not('.select_all_checkbox')"), function(event) {
                 var checkbox = event.target;
                 if ($(checkbox).is(':checked')) {
                     $(checkbox).attr('checked', 'checked');
@@ -804,18 +788,47 @@ $(document).ready(function() {
     //Cumulative checkbox
     $("#display-chart-section").on("click", ".cumulative", function() {
 
+        $(".cumulative").toggleClass("uk-active");
         $(".discrete-values").toggleClass("hidden");
         $(".cumulative-values").toggleClass("hidden");
 
         //Trigger contributors total calculation
-        //var tableBodies = $(".contributors-table tbody");
-        //for (var i = 0, len = tableBodies.length; i < len; i++) {
-        //    sumColumn($("input[type = 'checkbox']", tableBodies[i])[0]);
-        //}
+        var tableBodies = $(".contributors-table tbody");
+        for (var i = 0, len = tableBodies.length; i < len; i++) {
+            sumColumn($("input[type = 'checkbox']", tableBodies[i])[0]);
+        }
         //Todo: feature:redraw metric timeseries using cumulative data
         if($("#metric-time-series-placeholder").length > 0){}
     });
 
+
+    // Summary and details tab toggle
+    $("#display-chart-section").on("click", "#sum-detail button", function(){
+        console.log(" called sum-detail toggle")
+        if(!$(this).hasClass("uk-active")) {
+            console.log("called")
+
+            $(".details-cell").toggleClass("hidden");
+            $(".subheader").toggleClass("hidden");
+            $('.contributors-table-time').attr('colspan', function(index, attr){
+                return attr == 3 ? null : 3;
+            });
+        }
+    })
+
+    $(".chart-selections").on("click","button",function(){
+        if(!$(this).hasClass("uk-active")) {
+            $(this).siblings().removeClass("uk-active")
+            $(this).addClass("uk-active")
+        }
+    })
+
+    $("#display-chart-section").on("click","#sum-detail button",function(){
+        if(!$(this).hasClass("uk-active")) {
+            $(this).siblings().removeClass("uk-active")
+            $(this).addClass("uk-active")
+        }
+    })
 
     //Set initial view
 
