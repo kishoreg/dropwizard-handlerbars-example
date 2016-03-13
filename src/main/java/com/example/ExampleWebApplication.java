@@ -1,6 +1,7 @@
 package com.example;
 
 
+import com.example.resources.DashBoardResource;
 import com.example.resources.DefaultResource;
 import com.example.resources.HelloResource;
 
@@ -12,11 +13,11 @@ import io.dropwizard.views.ViewBundle;
 
 public class ExampleWebApplication extends Application<ExampleWebApplicationConfig>{
   public ExampleWebApplication(){
-    
+
   }
-  
+
   @Override
-  public String getName() {   
+  public String getName() {
     return "example";
   }
 
@@ -40,5 +41,6 @@ public class ExampleWebApplication extends Application<ExampleWebApplicationConf
   public void run(ExampleWebApplicationConfig config, Environment env) throws Exception {
     env.jersey().register(new DefaultResource());
     env.jersey().register(new HelloResource());
+    env.jersey().register(new DashBoardResource());
   }
 }
