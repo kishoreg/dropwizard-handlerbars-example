@@ -110,7 +110,8 @@ $(document).ready(function() {
         })
     }
 
-    getData("data/getdataset.json").done( function(data){
+    // getData("data/getdataset.json").done( function(data){
+    getData("/dashboard/data?type=dataset").done( function(data){
         /* Handelbars template for collections dropdown */
         var result_collections_template = template_collections(data);
         $("#landing-collection").html(result_collections_template);
@@ -464,7 +465,8 @@ $(document).ready(function() {
 
     /** Eventlisteners **/
     $("#overview-btn").on("click", function(){
-        getData("data/getmetrics.json").done(function(data){
+        // getData("data/getmetrics.json").done(function(data){
+        getData("/dashboard/data?type=metrics").done(function(data){
 
             $("#display-chart-section").empty();
 
@@ -493,7 +495,8 @@ $(document).ready(function() {
 
     //Contributors section
     $("#contributors-btn").on("click", function(){
-        getData("data/getmetrics.json").done(function(data) {
+        // getData("data/getmetrics.json").done(function(data) {
+        getData("/dashboard/data?type=metrics").done(function(data) {
 
             //Handelbars contributors table template
             $("#display-chart-section").empty()
@@ -621,7 +624,8 @@ $(document).ready(function() {
     //Treemap section
     $("#heatmap-btn").on("click", function(){
 
-        getData("data/gettreemaps.json").done(function(data) {
+        // getData("data/gettreemaps.json").done(function(data) {
+        getData("/dashboard/data?type=treemaps").done(function(data) {
 
             /* Handelbars template for treemap table */
             var result_treemap_template = template_treemap(data)

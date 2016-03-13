@@ -1,5 +1,7 @@
 package com.example.resources;
 
+import io.dropwizard.views.View;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -14,33 +16,25 @@ import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-@Path(value = "/hello")
-@Produces(MediaType.APPLICATION_JSON)
-public class HelloResource {
+import com.example.views.DashBoardView;
 
-  public HelloResource() {
+@Path(value = "/dashboard")
+// @Produces(MediaType.APPLICATION_JSON)
+public class DashBoardResource {
+
+  public DashBoardResource() {
   }
 
-  // @GET
-  // @Path("/{name}")
-  // public String sayHello(@PathParam("name") String name) {
-  // return "Hello " + name;
-  // }
-
   @GET
-  @Path(value = "/world")
-  public String sayHello(@QueryParam("name") String name) {
-    JSONObject hello = new JSONObject();
-    try {
-      hello.put("hello", name);
-    } catch (JSONException e) {
-      // TODO Auto-generated catch block
-    }
-    return hello.toString();
+  @Path(value = "/")
+  @Produces(MediaType.TEXT_HTML)
+  public View getDashBoardView() {
+    return new DashBoardView();
   }
 
   @GET
   @Path(value = "/data")
+  @Produces(MediaType.APPLICATION_JSON)
   public String getData(@QueryParam("type") String type) throws Exception {
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
@@ -70,5 +64,4 @@ public class HelloResource {
 
     return response;
   }
-
 }
