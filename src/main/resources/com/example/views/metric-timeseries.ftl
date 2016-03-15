@@ -1,7 +1,7 @@
 <section id="metric-timeseries-section" class="">
     <script id="metric-time-series-legend-template" type="text/x-handlebars-template">
 
-         <p class="time" currentUTC="{{this.currentUTC}}" title="{{this.baselineUTC}}">baseline:  {{this.currentUTC}} current: {{this.baselineUTC}}</p>
+         <p class="time" currentUTC="{{this.currentUTC}}" title="{{this.baselineUTC}}">baseline:   {{this.baselineUTC}} current: {{this.currentUTC}}</p>
 
     <div id="metric-time-series-placeholder" class="uk-display-inline-block" style="width: 95%; height: 300px;"></div>
     <ul id="metric-time-series-legend">

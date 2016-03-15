@@ -111,7 +111,7 @@ $(document).ready(function() {
     }
 
     // getData("data/getdataset.json").done( function(data){
-    getData("/dashboard/data?type=dataset").done( function(data){
+    getData("/dashboard/data?type=dataset" + window.location.hash).done( function(data){
         /* Handelbars template for collections dropdown */
         var result_collections_template = template_collections(data);
         $("#landing-collection").html(result_collections_template);
@@ -234,7 +234,6 @@ $(document).ready(function() {
         }
 
         if(options.mode == "baseVsCurrent"){
-
             var selectedDimensionValues = [];
             var legendColors = [];
             var currentDimensionWrapper = $(".dimension-section-wrapper[rel=" + selectedMetricObj[0]['dimensions'][0]['dimensionName'] +"]");
@@ -329,8 +328,6 @@ $(document).ready(function() {
                 for(var t = 0, len = options.data.timebuckets.length; t<len; t++){
                     //Display the discrete or the cumulative values
 
-
-
                     switch(options.cumulative + " | " +  options.mode ){
 
                         //cumulative contribution to total
@@ -358,10 +355,8 @@ $(document).ready(function() {
                      plotDimensionValObj.data.push([ moment(options.data.timebuckets[t][1]).valueOf(), selectedDimensionObj['dimensionValues'][i]['data'][t*3+1] ])
                      }*/
                 }
-
                 dimTimeseriesData.push( plotDimensionValObj )
             }
-
         return dimTimeseriesData
 
         }
@@ -401,7 +396,6 @@ $(document).ready(function() {
                 labelBoxBorderColor: "none",
                 position: "right"
             }
-
         }
         //merging the custom settings into the default settings object
         var options = $.extend(true, {}, defaultOptions, customOptions)
@@ -466,7 +460,8 @@ $(document).ready(function() {
     /** Eventlisteners **/
     $("#overview-btn").on("click", function(){
         // getData("data/getmetrics.json").done(function(data){
-        getData("/dashboard/data?type=metrics").done(function(data){
+
+        getData("/dashboard/data?type=metrics" + window.location.hash).done(function(data){
 
             $("#display-chart-section").empty();
 
@@ -496,7 +491,7 @@ $(document).ready(function() {
     //Contributors section
     $("#contributors-btn").on("click", function(){
         // getData("data/getmetrics.json").done(function(data) {
-        getData("/dashboard/data?type=metrics").done(function(data) {
+        getData("/dashboard/data?type=metrics"+ window.location.hash).done(function(data) {
 
             //Handelbars contributors table template
             $("#display-chart-section").empty()
@@ -554,11 +549,6 @@ $(document).ready(function() {
 
                     var currentMode = $(this).attr("mode")
                     var currentMetricArea = $(this).closest(".dimension-timeseries-section");
-
-                    // Set in URI
-                    //var hash = parseHashParameters(window.location.hash)
-                    //hash['timeSeriesMode'] = currentMode
-                    //window.location.hash = encodeHashParameters(hash)
 
                     // Display selected timeseries
                     $(".dimension-timeseries-legend", currentMetricArea).hide()
@@ -625,7 +615,7 @@ $(document).ready(function() {
     $("#heatmap-btn").on("click", function(){
 
         // getData("data/gettreemaps.json").done(function(data) {
-        getData("/dashboard/data?type=treemaps").done(function(data) {
+        getData("/dashboard/data?type=treemaps"+ window.location.hash).done(function(data) {
 
             /* Handelbars template for treemap table */
             var result_treemap_template = template_treemap(data)
@@ -832,6 +822,31 @@ $(document).ready(function() {
             $(this).siblings().removeClass("uk-active")
             $(this).addClass("uk-active")
         }
+    })
+
+    $(".single-select").on("click", function(){  console.log(".single-select ul clicked") });
+
+
+    var hash = parseHashParameters(window.location.hash);
+    $(".dashboard-settings-li").on("click", "li:not('.uk-button')", function(){
+        console.log("dashboard-settings-li clicked")
+        var param = $(this).attr("rel")
+        var value = $(this).attr("value");
+
+        if($(this).closest("ul").hasClass("single-select")){
+             hash[param] = value;
+
+        }else{
+           //Multicelect will create an array
+           if(!hash[param]){
+               hash[param] = [value]
+           }else if( hash[param].indexOf(value) < 0){
+               hash[param] =  hash[param] +","+ value;
+           }
+        }
+        console.log(hash);
+        window.location.hash = encodeHashParameters(hash);
+        return false
     })
 
     //Set initial view

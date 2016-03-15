@@ -83,7 +83,7 @@
             </div>
         </li>
         <li id="view-metric-selector" class="dashboard-settings-li" >
-            <label class="dashboard-settings-label">Metrics
+            <label class="dashboard-settings-label">Metric
             </label>
             <button class="uk-button" type="button"> totalFlows <i class="uk-icon-close"></i></button>
             <div class="add-btn uk-display-inline-block" data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true">
@@ -198,9 +198,7 @@
 
 <section id="metric-timeseries-section" class="">
     <script id="metric-time-series-legend-template" type="text/x-handlebars-template">
-
-         <p class="time" currentUTC="{{this.currentUTC}}" title="{{this.baselineUTC}}">baseline:  {{this.currentUTC}} current: {{this.baselineUTC}}</p>
-
+         <p class="time" currentUTC="{{this.currentUTC}}" title="{{this.baselineUTC}}">baseline: {{this.baselineUTC}} current:{{this.currentUTC}}  </p>
     <div id="metric-time-series-placeholder" class="uk-display-inline-block" style="width: 95%; height: 300px;"></div>
     <ul id="metric-time-series-legend">
             {{#each metrics}}
@@ -509,8 +507,6 @@
         {{/each}}
     </script>
 </section>
-
-<div id="chart_div" style="width: 900px; height: 500px;"></div>
 
 </body>
 

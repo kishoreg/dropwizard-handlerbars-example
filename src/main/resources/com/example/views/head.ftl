@@ -41,5 +41,4 @@
         google.load("visualization", "1", {packages:["treemap"]});
     </script>
     <script src="../../../assets/js/dashboard.js" defer></script>
-
 </head>

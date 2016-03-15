@@ -13,6 +13,7 @@
 		<dropwizard.version>0.7.1</dropwizard.version>
 		<jackson.version>2.4.3</jackson.version>
 		<handlebars.version>4.0.4</handlebars.version>
+                <jdk.version>1.8</jdk.version>
 	</properties>
 
 	<dependencies>
@@ -20,6 +21,7 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>
+
 		</dependency>
 		<dependency>
 			<groupId>io.dropwizard</groupId>

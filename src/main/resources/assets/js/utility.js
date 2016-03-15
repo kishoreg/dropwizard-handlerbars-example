@@ -73,11 +73,9 @@ function parseHashParameters(hashString) {
 
 function encodeHashParameters(hashParameters) {
     var keyValuePairs = [];
-
     $.each(hashParameters, function(key, value) {
         keyValuePairs.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
     })
-
     return '#' + keyValuePairs.join('&');
 }
 
@@ -85,84 +83,6 @@ function setHashParameter(hashString, key, value) {
     var params = parseHashParameters(hashString);
     params[key] = value;
     return encodeHashParameters(params);
-}
-
-function parseMetricFunction(metricFunction) {
-    var stack = [];
-    var collector = "";
-
-    for (var i = 0; i < metricFunction.length; i++) {
-        if (metricFunction.charAt(i) == '(') { // open function
-            var name = collector
-            collector = ""
-            stack.push({
-                name: name,
-                args: []
-            })
-        } else if (metricFunction.charAt(i) == ')') { // close function
-            if (collector.length > 0) {
-                stack[stack.length - 1].args.push(collector)
-                collector = ""
-            }
-            var func = stack.pop()
-            if (stack.length == 0) {
-                stack.push(func)
-            } else {
-                stack[stack.length - 1].args.push(func)
-            }
-        } else if (metricFunction.charAt(i) == ',') { // arg
-            stack[stack.length - 1].args.push(collector)
-            collector = ""
-        } else {
-            collector += metricFunction.charAt(i)
-        }
-    }
-
-    return stack.pop()
-}
-
-function getDashboardPath(path) {
-    return "/dashboard"
-        + "/" + path.collection
-        + "/" + path.metricFunction
-        + "/" + path.metricViewType
-        + "/" + path.dimensionViewType
-        + "/" + path.baselineMillis
-        + "/" + path.currentMillis
-}
-
-function getFlotViewType(metricViewType) {
-    if (metricViewType == 'INTRA_DAY') {
-        return 'TIME_SERIES_FULL'
-    } else if (metricViewType == 'FUNNEL') {
-        return 'TIME_SERIES_FULL'
-    } else {
-        return metricViewType
-    }
-}
-
-/**
- * @return A pathname suitable for getting the time series from the parsed path
- */
-function getFlotPath(path, options) {
-    var viewType = getFlotViewType(path.metricViewType)
-
-    if (viewType == 'TIME_SERIES_OVERLAY') {
-        return '/flot'
-            + '/' + viewType
-            + '/' + path.collection
-            + '/' + path.metricFunction
-            + '/' + path.baselineMillis
-            + '/' + path.currentMillis
-            + '/' + options.windowMillis
-    } else {
-        return '/flot'
-            + '/' + viewType
-            + '/' + path.collection
-            + '/' + path.metricFunction
-            + '/' + path.baselineMillis
-            + '/' + path.currentMillis
-    }
 }
 
 function parseDimensionValues(queryString) {
@@ -234,112 +154,11 @@ function encodeDimensionValuesAry(dimensionValues) {
     return "?" + components.join("&")
 }
 
-function renderFunnel(container, options) {
-    var path = parsePath(window.location.pathname)
-
-    var endMillis = 0
-    if (options.mode == 'current') {
-        endMillis = path.currentMillis
-    } else {
-        endMillis = path.baselineMillis
-    }
-
-    path.baselineMillis = endMillis
-    path.currentMillis = endMillis
-
-    var url = getFlotPath(path, options)
-
-    if (window.location.search) {
-        url += window.location.search
-        if (options.dimension) {
-            url += '&' + encodeURIComponent(options.dimension) + '=!'
-        }
-    } else if (options.dimension) {
-        url += '?' + encodeURIComponent(options.dimension) + '=!'
-    }
-
-    if (options.legendContainer) {
-        options.legendContainer.empty()
-    }
-
-    var render = function(data) {
-        container.css('width', container.width())
-        container.css('height', '400px')
-
-        data.sort(function(a, b) {
-            return b.data[0][1] - a.data[0][1]
-        })
-
-        // Max value
-        var max = 0
-        $.each(data, function(i, datum) {
-            datum.rawData = datum.data[0][1]
-            if (datum.rawData > max) {
-                max = datum.rawData
-            }
-        })
-
-        // Get ratios to max
-        $.each(data, function(i, datum) {
-            datum.ratio = datum.rawData / max
-        })
-
-        // Subtract the next from each
-        for (var i = 0; i < data.length - 1; i++) {
-            data[i].data[0][1] -= data[i+1].data[0][1]
-        }
-
-        if(data.length == 1) {
-            var warning = $('<div></div>', { class: 'uk-alert uk-alert-warning' })
-            warning.append($('<p></p>', { html: 'A funnel must consist of more than one metric.' }))
-            container.append(warning)
-            return;
-        }
-        container.plot(data, {
-            series: {
-                funnel: {
-                    show: true,
-                    label: {
-                        show: true,
-                        formatter: function(label, slice) {
-                            if (slice.ratio >= 0.999) {
-                                return slice.rawData
-                            }
-                            return slice.rawData + ' (' + (slice.ratio * 100).toFixed(2) + '%)'
-                        }
-                    }
-                }
-            },
-            legend: {
-                container: options.legendContainer
-            }
-        })
-    }
-
-    $.ajax({
-        url: url,
-        statusCode: {
-            404: function() {
-                container.empty()
-                var warning = $('<div></div>', { class: 'uk-alert uk-alert-warning' })
-                warning.append($('<p></p>', { html: 'No data available' }))
-                container.append(warning)
-            },
-            500: function() {
-                container.empty()
-                var error = $('<div></div>', { class: 'uk-alert uk-alert-danger' })
-                error.append($('<p></p>', { html: 'Internal server error' }))
-                container.append(error)
-            }
-        }
-    }).done(render)
-}
-
 /**
  * @param container The jQuery object in which to put the time series
  * @param tooltip The jQuery object which should contain the hover information
  */
-function renderTimeSeries(container, tooltip, options) {
+/*function renderTimeSeries(container, tooltip, options) {
     container.empty()
     container.html('Loading...')
 
@@ -433,9 +252,9 @@ function renderTimeSeries(container, tooltip, options) {
             }
         }
     }).done(render)
-}
+}*/
 
-function plotOne(container, tooltip, options, data) {
+/*function plotOne(container, tooltip, options, data) {
     if (options.filter) {
         data = options.filter(data);
     }
@@ -505,168 +324,7 @@ function plotOne(container, tooltip, options, data) {
     if (options.click) {
         container.bind("plotclick", options.click)
     }
-}
-
-/**
- * @param rawData The container with raw data
- * @return an object with the raw data
- */
-function extractHeatMapData(rawData) {
-    var data = {}
-
-
-    rawData.find('.dimension-view-heat-map').each(function(i, heatMap) {
-        var heatMapObj = $(heatMap)
-        var id = heatMapObj.attr('metric').split('.').join('-') + '-' + heatMapObj.attr('dimension').split('.').join('-')
-        data[id] = {
-            metric: heatMapObj.attr('metric'),
-            metricDisplay: heatMapObj.attr('metric-display'),
-            dimension: heatMapObj.attr('dimension'),
-            dimensionDisplay: heatMapObj.attr('dimension-display'),
-            cells: []
-        }
-
-        // Get stats name mapping
-        var statsNamesMapping = {}
-        var statsNames = JSON.parse(heatMapObj.attr('stats-names'))
-        $.each(statsNames, function(i, statsName) {
-            statsNamesMapping[statsName] = i
-        })
-
-        heatMapObj.find('.dimension-view-heat-map-cell').each(function(j, cell) {
-            var cellObj = $(cell)
-
-            // Get cell stats
-            try {
-                var statsList = JSON.parse(cellObj.attr('stats'))
-                var cellStats = {}
-                $.each(statsNamesMapping, function(name, idx) {
-                    cellStats[name] = statsList[idx]
-                })
-
-                data[id].cells.push({
-                    value: cellObj.attr('value'),
-                    stats: cellStats
-                })
-            } catch (e) {
-                console.error('Corrupt heat map cell data', cellObj, e)
-            }
-        })
-    })
-    return data
-}
-
-/**
- * @param rawData The raw heat map data (XML)
- * @param container The container in which to place the rendered heat map
- * @param options (sortKey, alphaKey, mainDisplayKey, positiveClass, negativeClass)
- */
-function renderHeatMap(rawData, container, options) {
-    var data = extractHeatMapData(rawData)
-
-    container.empty()
-
-    // Group
-    var groups = {}
-    $.each(data, function(heatMapId, heatMapSpec) {
-        var cells = heatMapSpec.cells
-        var tokens = heatMapId.split('-')
-        var metric = heatMapSpec.metric
-        var dimension = heatMapSpec.dimension
-        var groupKey = options.groupBy == 'DIMENSION' ? heatMapSpec.dimensionDisplay : heatMapSpec.metricDisplay
-        var caption = options.groupBy == 'DIMENSION' ? heatMapSpec.metricDisplay : heatMapSpec.dimensionDisplay // show the other as caption
-
-        if (!groups[groupKey]) {
-            groups[groupKey] = []
-        }
-
-        groups[groupKey].push({
-            dimension: dimension,
-            metric: metric,
-            caption: caption,
-            cells: cells,
-            id: heatMapId
-        })
-    })
-
-    $.each(groups, function(groupId, group) {
-        var header = $('<h2></h2>', { html: groupId })
-        container.append(header)
-
-        $.each(group, function(i, heatMap) {
-            var table = $('<table></table>', { class: 'uk-table dimension-view-overview-rendered' })
-            var caption = $('<caption></caption>', { html: heatMap.caption })
-            var cells = heatMap.cells
-            var heatMapId = heatMap.id
-            cells.sort(options.comparator)
-
-            // Group cells into rows
-            var numColumns = 5
-            var rows = []
-            var currentRow = []
-            for (var i = 0; i < cells.length; i++) {
-                if (options.filter != null && !options.filter(cells[i])) {
-                    continue
-                }
-                currentRow.push(cells[i])
-                if (currentRow.length == numColumns) {
-                    rows.push(currentRow)
-                    currentRow = []
-                }
-            }
-            if (currentRow.length > 0) {
-                rows.push(currentRow)
-            }
-
-            // Generate table body
-            var tbody = $("<tbody></tbody>")
-            $.each(rows, function(i, row) {
-                var tr = $("<tr></tr>")
-                $.each(row, function(j, cell) {
-                    var td = $("<td></td>")
-                    td.html(options.display(cell))
-                    td.css('background-color', options.backgroundColor(cell))
-                    td.hover(function() { $(this).css('cursor', 'pointer') })
-                    td.attr('title', $.map(cell.stats, function(val, key) {
-                        if (val !== null && (key === 'baseline_cdf_value'
-                            || key === 'current_cdf_value'
-                            || key === 'contribution_difference'
-                            || key === 'current_ratio'
-                            || key === 'baseline_ratio'
-                            || key === 'volume_difference')) {
-                            return key + '=' + val.toFixed(2)
-                        } else {
-                            return key + '=' + val
-                        }
-                    }).join("\n"))
-                    td.attr('dimension', heatMap.dimension);
-
-                    // Annotate outliers
-                    if (cell.stats['snapshot_category'] == 1) {
-                        td.css('border', '2px solid #580f8b')
-                    }
-
-                    // Drill-down click handler
-                    td.click(function() {
-                        var name = $(this).attr('dimension')
-                        var value = cell.value
-                        var dimensionValues = parseDimensionValuesAry(window.location.search)
-                        dimensionValues.push(name + "=" + value )
-                        window.location.search = encodeDimensionValuesAry(dimensionValues)
-                    })
-
-                    tr.append(td)
-                })
-                tbody.append(tr)
-            })
-
-            // Append
-            table.append(caption)
-            table.append(tbody)
-            container.append(table)
-        })
-    })
-}
+}*/
 
 
 /** @return A {"size": x, "unit": y} object that best describes @param millis */
@@ -744,117 +402,6 @@ function getTimeZone() {
         var tz = timeZone.timezone_name
     }
     return tz
-}
-
-
-function updateTableOrder(tableContainer, orderContainer) {
-    // Get column headers
-    var currentOrder = $.map(tableContainer.find("thead tr").first().find("th"), function(elt) {
-        return $.trim(elt.innerHTML)
-    }).slice(1) // for time column
-
-    // Get columns
-    var columns = {}
-    for (var i = 0; i < currentOrder.length; i++) {
-        columns[currentOrder[i]] = []
-    }
-    var tableRows = tableContainer.find("tbody tr")
-    for (var i = 0; i < tableRows.size(); i++) {
-        var tableCols = $(tableRows[i]).find("td")
-        for (var j = 0; j < currentOrder.length; j++) {
-            var colIdx = 1 + j * 3 // n.b. first column time
-            //columns[j].push({
-            columns[currentOrder[j]].push({
-                current: tableCols[colIdx].innerHTML,
-                baseline: tableCols[colIdx + 1].innerHTML,
-                ratio: tableCols[colIdx + 2].innerHTML
-            })
-        }
-    }
-
-    // Get the desired ordering of metric columns
-    var nextOrder = $.map(orderContainer.find("li div"), function(elt) {
-        return $.trim(elt.innerHTML)
-    })
-
-    // Re-write the column headers
-    tableContainer.find("thead tr").first().find("th").each(function(i, elt) {
-        if (i > 0) { // first is time column
-            var metricIndex = i - 1
-            var currentMetric = currentOrder[metricIndex]
-            var nextMetric = nextOrder[metricIndex]
-            $(elt).html(nextMetric)
-        }
-    })
-
-    // Re-write the columns
-    for (var i = 0; i < tableRows.size(); i++) {
-        var tableCols = $(tableRows[i]).find("td")
-        for (var j = 0; j < currentOrder.length; j++) {
-            var nextMetric = nextOrder[j]
-            var column = columns[nextMetric]
-
-            // This is relative to the table itself
-            var colIdx = 1 + j * 3;
-            $(tableCols[colIdx]).html(column[i].current)
-            $(tableCols[colIdx + 1]).html(column[i].baseline)
-            $(tableCols[colIdx + 2]).html(column[i].ratio)
-
-            // Set the right class for the value
-            var ratio = parseFloat(column[i].ratio)
-            var ratioCell = $(tableCols[colIdx + 2])
-            ratioCell.removeClass('metric-table-down-cell metric-table-same-cell')
-            if (ratio < 0) {
-                ratioCell.addClass('metric-table-down-cell')
-            } else if (ratio == 0) {
-                ratioCell.addClass('metric-table-same-cell')
-            }
-        }
-    }
-
-    // Set hash parameter
-    var hashParams = parseHashParameters(window.location.hash)
-    $.each(nextOrder, function(i, elt) {
-        hashParams['intraDayOrder_' + i] = elt
-    })
-    window.location.hash = encodeHashParameters(hashParams)
-}
-
-
-/** Render tables **/
-
-/**
- * Sets the html of the provided cell to the time provided
- * in its 'currentUTC' attribute, using the selected timezone.
- *
- * @param index Currently ignored
- *  index of element in loop (eg $('.metric-table-time').each(renderTimeCell);
- * @param cell DOM element containing
- *  'currentUTC' and 'title' (baselineTime) attributes.
- * @function
- * @public
- * @returns n/a
- */
-function renderTimeCell(index, cell) {
-    //index is currently not used.
-    var tz = getTimeZone();
-    var cellObj = $(cell)
-    var currentTime = moment(cellObj.attr('currentUTC'))
-    var baselineTime = moment(cellObj.attr('title'))
-    cellObj.html(currentTime.tz(tz).format('YYYY-MM-DD HH:mm z'))
-    cellObj.attr('title', baselineTime.tz(tz).format('YYYY-MM-DD HH:mm z'))
-
-    // Click on time cell changes current value to that time
-    cellObj.click(function() {
-        var currentUTC = $(this).attr('currentUTC')
-        var path = parsePath(window.location.pathname)
-        var baselineDiff = path.currentMillis - path.baselineMillis
-        var currentMillis = moment.utc(currentUTC)
-
-        path.currentMillis = currentMillis
-        path.baselineMillis = currentMillis - baselineDiff
-        window.location.pathname = getDashboardPath(path)
-    })
 }
 
 /** Assign background color value to each heat-map-cell **/
