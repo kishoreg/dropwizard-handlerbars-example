@@ -799,8 +799,6 @@ $(document).ready(function() {
     $("#display-chart-section").on("click", "#sum-detail button", function(){
         console.log(" called sum-detail toggle")
         if(!$(this).hasClass("uk-active")) {
-            console.log("called")
-
             $(".details-cell").toggleClass("hidden");
             $(".subheader").toggleClass("hidden");
             $('.contributors-table-time').attr('colspan', function(index, attr){
@@ -810,7 +808,8 @@ $(document).ready(function() {
     })
 
     //view-type selection
-    $(".view-type-options").on("click","li",function(){
+    $(".radio-options").on("click","li",function(){
+        console.log("radio options")
         if(!$(this).hasClass("uk-active")) {
             $(this).siblings().removeClass("uk-active");
             $(this).addClass("uk-active");
@@ -848,26 +847,15 @@ $(document).ready(function() {
                hash[param] =  hash[param] +","+ value;
            }
         }
-
-        console.log(hash)
         window.location.hash = encodeHashParameters(hash);
         return false
     })
 
-    /*$("#add-filter").on("click", ".filter-dimension-value-item", function(){
-        var param = $(this).attr("rel");
-        var value = $(this).attr("value");
-        var filters = {};
-
-        if(!filters[param]){
-            filters[param] =  [value];
-        }else if( filters[param].indexOf(value) < 0){
-            filters[param] =  filters[param] +","+ value;
-        }
-        console.log(filters)
-        //window.location.hash = encodeHashParameters(hash);
-        return false
-    })*/
+    $("#dashboard-header").on("click",".remove-selection", function(){
+        console.log("btn-close click");
+        console.log("this", this);
+        this.parentNode.style.display = 'none';
+    })
 
     $("#apply-filter-btn").click(function(){
         var filters = {};
@@ -890,14 +878,20 @@ $(document).ready(function() {
         }
         hash.filters = encodeURIComponent(JSON.stringify(filters));
         window.location.hash = encodeHashParameters(hash);
-
-        //console.log("encode filters", encodeHashParameters(hash));
     })
 
-    $("#dashboard-header").on("click",".remove-selection", function(){
-        console.log("btn-close click");
-        console.log("this", this);
-        this.parentNode.style.display = 'none';
+
+
+    $("#dashboard-header").on("click",".filter-select-all-checkbox", function(){
+        var valueList = $("this").next();
+
+        if($(this).is(':checked')){
+            $("input", valueList).attr('checked', 'checked');
+            $("input", valueList).prop('checked', true);
+        }else{
+            $("input", valueList).removeAttr('checked');
+        }
+
     })
 
     //Toggle dimension values selector list based on selected dimension
@@ -905,6 +899,45 @@ $(document).ready(function() {
         $(".value-filter").hide();
         var dimension= $(this).attr("value")
         $(".value-filter[rel="+ dimension +" ]").show();
+    })
+
+    $("#time-input-form-submit").click(function(){
+        var errorMessage = $("#time-input-form-error p");
+        var errorAlert = $("#time-input-form-error");
+
+        //Todo support timezone selection
+        var timezone = "UTC";
+        // Date
+        var date = $("#time-input-form-current-date").val()
+        if (!date) {
+            errorMessage.html("Must provide date")
+            errorAlert.fadeIn(100)
+            return
+        }
+
+        // Time
+        var time = $("#time-input-form-current-time").val()
+        if (!time) {
+            errorMessage.html("Must provide time")
+            errorAlert.fadeIn(100)
+            return
+        }
+
+
+        //Todo: baselineSize, baselineUnit
+        var baselineSize = 0;
+        var baselineUnit = 0;
+
+        // DateTimes
+        var current = moment.tz(date + " " + time, timezone);
+        var baseline = moment(current.valueOf() - (baselineSize * baselineUnit));
+        var currentMillisUTC = current.utc().valueOf();
+        var baselineMillisUTC = baseline.utc().valueOf();
+
+        hash.currentMillis = currentMillisUTC;
+        hash.baselineMillis = currentMillisUTC;
+        window.location.hash = encodeHashParameters(hash);
+
     })
 
     //Set initial view

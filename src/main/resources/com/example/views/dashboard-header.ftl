@@ -24,7 +24,7 @@
                 <div class="uk-button">Overview</div>
                 <div class="uk-button uk-button-primary" type="button"><i class="uk-icon-caret-down"></i></div>
                 <div id="" class="uk-dropdown uk-dropdown-small uk-dropdown-bottom" style="top: 30px; left: 0px;">
-                        <ul class="uk-nav uk-nav-dropdown single-select view-type-options">
+                        <ul class="uk-nav uk-nav-dropdown single-select view-type-options radio-options">
                             <li id="overview-btn" class="viewtype-option" value="overview" rel="viewtype"><a href="#">Overview</a></li>
                             <li id="heatmap-btn" class="viewtype-option" value="heatmap" rel="viewtype"><a href="#">Heatmap</a></li>
                             <li id="contributors-btn" class="viewtype-option" value="contributors" rel="viewtype"><a href="#">Contributors</a></li>
@@ -76,13 +76,13 @@
                 <button class="uk-button uk-button-primary" type="button"><i class="uk-icon-plus"></i></button>
                 <div id="filter-panel" class="uk-dropdown" style="width:420px;">
                     <div class="dimension-filter" style="width:150px;">
-                        <ul class="filter-dimension-list">
-                            <li class="filter-dimension-item" value="deviceName">deviceName</li>
-                            <li class="filter-dimension-item" value="pageKey">pageKey</li>
+                        <ul class="filter-dimension-list radio-options">
+                            <li class="filter-dimension-item" value="deviceName"><a href="#">deviceName</a></li>
+                            <li class="filter-dimension-item" value="pageKey"><a href="#">pageKey</a></li>
                         </ul>
                     </div>
                     <div class="value-filter" rel="deviceName" style="display: none;">
-                        <label style="display: block;"><input class="select_all_checkbox" type="checkbox">Select All</label>
+                        <label style="display: block;"><input class="filter-select-all-checkbox" type="checkbox">Select All</label>
                         <div class="filter-dimension-value-list uk-display-inline-block" style="width:250px;">
                             <label class="filter-dimension-value-item" rel="deviceName" value="Desktop">
                                 <input class="filter-value-checkbox" type="checkbox" rel="deviceName" value="Desktop"> Desktop
@@ -100,7 +100,7 @@
                     </div>
 
                     <div class="value-filter" rel="pageKey" style="display: none;">
-                        <label style="display: block;"><input class="filter_select_all_checkbox" type="checkbox" rel="pageKey">Select All</label>
+                        <label style="display: block;"><input class="filter-select-all-checkbox" type="checkbox" rel="pageKey">Select All</label>
                         <div class="filter-dimension-value-list uk-display-inline-block" style="width:250px;">
                             <label class="filter-dimension-value-item" rel="pageKey" value="abook-import0impression-submit">
                                 <input class="filter-value-checkbox" type="checkbox" rel="pageKey" value="abook-import0impression-submit"> abook-import0impression-submit
@@ -165,7 +165,7 @@
                         </div>
                     </div>
                     <div class="uk-display-inline-block time-form-item">
-                        <button type="button" id="time-input-form-submit" class="uk-button uk-button-primary ">Go</button>
+                        <button type="button" id="time-input-form-submit" class="uk-button uk-button-primary">Go</button>
                     </div>
             </form>
         </li>

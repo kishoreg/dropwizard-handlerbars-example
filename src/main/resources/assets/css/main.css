@@ -22,6 +22,10 @@ ul, ol {
     box-sizing: border-box;
 }
 
+#dashboard-settings a{
+    text-decoration:none;
+}
+
 #dashboard-settings-ul{
     list-style: none;
     -webkit-padding-start: 0px;
