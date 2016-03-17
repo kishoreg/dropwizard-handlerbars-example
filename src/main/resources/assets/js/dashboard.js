@@ -84,6 +84,8 @@ $(document).ready(function() {
     var template_metric_time_series_legend = Handlebars.compile(source_metric_time_series_legend);
 
     /** AJAX **/
+    var hash = parseHashParameters(window.location.hash);
+
     function getData(url){
         return $.ajax({
             url: url,
@@ -110,18 +112,12 @@ $(document).ready(function() {
         })
     }
 
-    getData("/dashboard/data?type=dataset" + window.location.hash).done( function(data){
-        /* Handelbars template for collections dropdown */
-        var result_collections_template = template_collections(data);
-        $("#landing-collection").html(result_collections_template);
-    });
-
     // Assign background color value to each heat-map-cell
     function calcHeatMapBG(){
         $(".heat-map-cell").each(function (i, cell) {
             calcHeatMapCellBackground(cell);
         })
-    }
+    };
 
     // Transform UTC time into user selected or browser's timezone
     function transformUTCToTZ() {
@@ -456,11 +452,22 @@ $(document).ready(function() {
         $.plot(placeholder, data, options);
     }
 
+
+    function getDataSet(){
+        var url = "/dashboard/data?type=dataset" + "&" + window.location.hash.substring(1);
+        getData(url).done( function(data){
+            /* Handelbars template for collections dropdown */
+            var result_collections_template = template_collections(data);
+            $("#landing-collection").html(result_collections_template);
+        });
+    };
+
     /** Eventlisteners **/
+
     $("#overview-btn").on("click", function(){
 
-
-        getData("/dashboard/data?type=metrics" + window.location.hash).done(function(data){
+        var url = "/dashboard/data?type=metrics" + "&" + window.location.hash.substring(1);
+        getData(url).done(function(data){
 
             $("#display-chart-section").empty();
 
@@ -489,8 +496,10 @@ $(document).ready(function() {
 
     //Contributors section
     $("#contributors-btn").on("click", function(){
-        // getData("data/getmetrics.json").done(function(data) {
-        getData("/dashboard/data?type=metrics"+ window.location.hash).done(function(data) {
+
+
+        var url="/dashboard/data?type=metrics" + "&" + window.location.hash.substring(1)
+        getData(url).done(function(data) {
 
             //Handelbars contributors table template
             $("#display-chart-section").empty()
@@ -613,8 +622,8 @@ $(document).ready(function() {
     //Treemap section
     $("#heatmap-btn").on("click", function(){
 
-        // getData("data/gettreemaps.json").done(function(data) {
-        getData("/dashboard/data?type=treemaps"+ window.location.hash).done(function(data) {
+        var url="/dashboard/data?type=treemaps" + "&" + window.location.hash.substring(1);
+        getData(url).done(function(data) {
 
             /* Handelbars template for treemap table */
             var result_treemap_template = template_treemap(data)
@@ -829,7 +838,7 @@ $(document).ready(function() {
     $(".single-select").on("click", function(){  console.log(".single-select ul clicked") });
 
 
-    var hash = parseHashParameters(window.location.hash);
+
     $(".dashboard-settings-li").on("click", "li:not('.filter-dimension-item')", function(){
 
         var param = $(this).attr("rel");
@@ -837,7 +846,6 @@ $(document).ready(function() {
 
         if($(this).closest("ul").hasClass("single-select")){
              hash[param] = value;
-
         }else{
            //Multicelect will create an array for the values
 
@@ -851,6 +859,9 @@ $(document).ready(function() {
            }
         }
         window.location.hash = encodeHashParameters(hash);
+        if($(this).hasClass("collection-option")){
+            getDataSet()
+        }
         return false
     })
 
@@ -887,7 +898,7 @@ $(document).ready(function() {
         var valueList = $(this).parent().next("div");
 
         if($(this).is(':checked')){
-            console.log("select all checked")
+
             $("input", valueList).attr('checked', 'checked');
             $("input", valueList).prop('checked', true);
         }else{
@@ -955,6 +966,9 @@ $(document).ready(function() {
     })
 
     //Set initial view on pageload
+
+    //Initial dataset
+    getDataSet()
 
     //On initial load start with overview view
     $("#overview-btn").click()
