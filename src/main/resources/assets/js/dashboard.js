@@ -776,7 +776,10 @@ $(document).ready(function() {
     })
 
     //Eventlisteners
-
+    $("#dashboard-header").on("click","a[href='#']", function(){
+        //prevent jumping to the top of the page
+        event.preventDefault()
+    })
 
     //Cumulative checkbox
     $("#display-chart-section").on("click", ".cumulative", function() {
@@ -808,11 +811,11 @@ $(document).ready(function() {
     })
 
     //view-type selection
-    $(".radio-options").on("click","li",function(){
-        console.log("radio options")
-        if(!$(this).hasClass("uk-active")) {
-            $(this).siblings().removeClass("uk-active");
-            $(this).addClass("uk-active");
+    $(".radio-options").on("click","li a",function(){
+
+        if(!$(this).parent().hasClass("uk-active")) {
+            $(this).parent().siblings().removeClass("uk-active");
+            $(this).parent().addClass("uk-active");
         }
     })
 
@@ -880,18 +883,16 @@ $(document).ready(function() {
         window.location.hash = encodeHashParameters(hash);
     })
 
-
-
     $("#dashboard-header").on("click",".filter-select-all-checkbox", function(){
-        var valueList = $("this").next();
+        var valueList = $(this).parent().next("div");
 
         if($(this).is(':checked')){
+            console.log("select all checked")
             $("input", valueList).attr('checked', 'checked');
             $("input", valueList).prop('checked', true);
         }else{
             $("input", valueList).removeAttr('checked');
         }
-
     })
 
     //Toggle dimension values selector list based on selected dimension
@@ -900,6 +901,17 @@ $(document).ready(function() {
         var dimension= $(this).attr("value")
         $(".value-filter[rel="+ dimension +" ]").show();
     })
+
+    //Time input form related listeners
+
+    $(".baseline-aggregate:not('.uk-active')").click(function() {
+        $(".baseline-aggregate").trigger("change")
+    })
+    //When any form field has changed enable Go (submit) button
+    $("#time-input-form-current-date, #time-input-form-current-time, .baseline-aggregate, #time-input-comparison-size" ).change(enableFormSubmit)
+    function enableFormSubmit(){
+        document.getElementById('time-input-form-submit').disabled = false
+    }
 
     $("#time-input-form-submit").click(function(){
         var errorMessage = $("#time-input-form-error p");
@@ -924,37 +936,26 @@ $(document).ready(function() {
         }
 
 
-        //Todo: baselineSize, baselineUnit
-        var baselineSize = 0;
-        var baselineUnit = 0;
+        // Aggregate
+        var aggregateSize = 1;
+        var aggregateUnit = $(".baseline-aggregate.uk-active").attr("unit");
 
         // DateTimes
         var current = moment.tz(date + " " + time, timezone);
-        var baseline = moment(current.valueOf() - (baselineSize * baselineUnit));
+        var baseline = moment(current.valueOf() - $("#time-input-comparison-size").val() * 86400000);
         var currentMillisUTC = current.utc().valueOf();
         var baselineMillisUTC = baseline.utc().valueOf();
 
         hash.currentMillis = currentMillisUTC;
-        hash.baselineMillis = currentMillisUTC;
-        window.location.hash = encodeHashParameters(hash);
+        hash.baselineMillis = baselineMillisUTC;
+        hash.granularity = aggregateUnit;
 
+        errorAlert.hide()
+        window.location.hash = encodeHashParameters(hash);
     })
 
-    //Set initial view
+    //Set initial view on pageload
 
     //On initial load start with overview view
     $("#overview-btn").click()
-
-
-
-    var sidebar = $("#chart-control");
-    sidebar.on("scroll", function(e) {
-
-        if (this.scrollTop > 200) {
-            sidebar.addClass("fix-pos-sidenav");
-        } else {
-            sidebar.removeClass("fix-pos-sidenav");
-        }
-    });
-
 })

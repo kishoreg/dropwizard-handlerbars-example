@@ -22,8 +22,11 @@ ul, ol {
     box-sizing: border-box;
 }
 
-#dashboard-settings a{
+#dashboard-header a{
     text-decoration:none;
+    color: #444;
+    cursor: pointer;
+    padding: 6px 10px;
 }
 
 #dashboard-settings-ul{

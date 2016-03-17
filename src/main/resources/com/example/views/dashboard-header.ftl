@@ -76,7 +76,7 @@
                 <button class="uk-button uk-button-primary" type="button"><i class="uk-icon-plus"></i></button>
                 <div id="filter-panel" class="uk-dropdown" style="width:420px;">
                     <div class="dimension-filter" style="width:150px;">
-                        <ul class="filter-dimension-list radio-options">
+                        <ul class="filter-dimension-list radio-options" >
                             <li class="filter-dimension-item" value="deviceName"><a href="#">deviceName</a></li>
                             <li class="filter-dimension-item" value="pageKey"><a href="#">pageKey</a></li>
                         </ul>
@@ -165,7 +165,7 @@
                         </div>
                     </div>
                     <div class="uk-display-inline-block time-form-item">
-                        <button type="button" id="time-input-form-submit" class="uk-button uk-button-primary">Go</button>
+                        <button type="button" id="time-input-form-submit" class="uk-button uk-button-primary" disabled>Go</button>
                     </div>
             </form>
         </li>
