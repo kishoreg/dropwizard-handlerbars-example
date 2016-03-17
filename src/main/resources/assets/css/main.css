@@ -53,6 +53,52 @@ ul, ol {
     background-color: #f5f5f5;
 }
 
+.uk-dropdown.filter-panel{
+    width:450px;
+    display:table
+}
+
+.dimension-filter,
+.value-filter{
+    width:49%;
+    line-height: 30px;
+    display: table-cell;
+    padding: 5px;
+}
+
+.filter-dimension-list{
+    position: relative;
+    top: 31px;
+}
+
+.filter-dimension-list,
+.filter-dimension-value-list{
+    background: #fff;
+    vertical-align: top;
+    border: 1px solid #ccc;
+    height:200px;
+    overflow-y: scroll;
+    text-overflow: ellipsis;
+}
+
+.filter-dimension-value-list label{
+    text-overflow: ellipsis;
+}
+
+.filter-dimension-item{
+    overflow: hidden;
+    line-height: 30px;
+    border-bottom: 1px solid #ddd;
+    padding-left: 5px;
+}
+
+.filter-dimension-value-item{
+    display:block;
+    line-height:30px;
+    border-bottom: 1px solid #ddd;
+    padding-left:5px;
+    text-overflow: ellipsis;
+}
 
 .dashboard-settings-label.form-label{
     padding-top: 30px;
@@ -71,14 +117,12 @@ ul, ol {
 
 #display-chart-area{
     margin: 0;
-    margin-left: 20px;
-    width: 86%;
-    display:inline-block;
-    min-height: 400px;
+    min-height: 500px;
 }
 
 #display-chart-section{
     overflow: scroll;
+    padding: 12px;
 }
 
 #chart-control{
@@ -96,10 +140,6 @@ ul, ol {
 #chart-types button{
     min-width:105px;
     margin: 5px;
-}
-
-#display-chart-section{
-    padding: 12px;
 }
 
 .dimension-section-wrapper{

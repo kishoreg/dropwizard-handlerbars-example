@@ -4,8 +4,8 @@
             <label class="dashboard-settings-label">Dataset
             </label>
             <div data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true" class="uk-button-group uk-display-inline-block">
-                <button class="uk-button">abook</button>
-                <button class="uk-button uk-button-primary" type="button"><i class="uk-icon-caret-down"></i></button>
+                <div class="uk-button">abook</div>
+                <div class="uk-button uk-button-primary" type="button"><i class="uk-icon-caret-down"></i></div>
                 <div id="landing-collection" class="uk-dropdown uk-dropdown-small uk-dropdown-bottom" style="top: 30px; left: 0px;">
                     <script id="collections-template" type="text/x-handlebars-template">
                     <ul class="uk-nav uk-nav-dropdown single-select">
@@ -21,13 +21,13 @@
             <label class="dashboard-settings-label">View type
             </label>
             <div data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true" class="uk-button-group uk-display-inline-block">
-                <button class="uk-button">Overview</button>
-                <button class="uk-button uk-button-primary" type="button"><i class="uk-icon-caret-down"></i></button>
+                <div class="uk-button">Overview</div>
+                <div class="uk-button uk-button-primary" type="button"><i class="uk-icon-caret-down"></i></div>
                 <div id="" class="uk-dropdown uk-dropdown-small uk-dropdown-bottom" style="top: 30px; left: 0px;">
-                        <ul class="uk-nav uk-nav-dropdown single-select">
-                            <li class="viewtype-option" value="overview" rel="viewtype"><a href="#">Overview</a></li>
-                            <li class="viewtype-option" value="heatmap" rel="viewtype"><a href="#">Heatmap</a></li>
-                            <li class="viewtype-option" value="contributors" rel="viewtype"><a href="#">Contributors</a></li>
+                        <ul class="uk-nav uk-nav-dropdown single-select view-type-options">
+                            <li id="overview-btn" class="viewtype-option" value="overview" rel="viewtype"><a href="#">Overview</a></li>
+                            <li id="heatmap-btn" class="viewtype-option" value="heatmap" rel="viewtype"><a href="#">Heatmap</a></li>
+                            <li id="contributors-btn" class="viewtype-option" value="contributors" rel="viewtype"><a href="#">Contributors</a></li>
                         </ul>
                 </div>
             </div>
@@ -36,7 +36,7 @@
             <label class="dashboard-settings-label">Dashboard
             </label>
             <div data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true" class="uk-button-group uk-display-inline-block">
-                <button class="uk-button">primary metric view</button>
+                <div class="uk-button">primary metric view</div>
                 <button class="uk-button uk-button-primary" type="button"><i class="uk-icon-caret-down"></i></button>
                 <div class="uk-dropdown uk-dropdown-small uk-dropdown-bottom" style="top: 30px; left: 0px;">
                     <ul class="uk-nav uk-nav-dropdown single-select">
@@ -51,7 +51,7 @@
         <li id="view-metric-selector" class="dashboard-settings-li" >
             <label class="dashboard-settings-label">Metrics
             </label>
-            <button class="uk-button" type="button"> totalFlows <i class="uk-icon-close"></i></button>
+            <div class="added-item uk-button">totalFlows <i class="uk-icon-close remove-selection"></i></div>
             <div class="add-btn uk-display-inline-block" data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true">
                 <button class="uk-button uk-button-primary" type="button"><i class="uk-icon-plus"></i></button>
                 <div class="uk-dropdown uk-dropdown-small ">
@@ -71,39 +71,46 @@
         <li class="dashboard-settings-li">
             <label class="dashboard-settings-label">Filters
             </label>
-            <button class="uk-button" type="button" value="countryCode:US"> countryCode: US <i class="uk-icon-close"></i></button>
-            <div class="add-btn uk-display-inline-block" data-uk-dropdown="{mode:'click'}" aria-haspopup="true" aria-expanded="true">
+            <div class="added-item uk-button" rel="countryCode" value="US"> countryCode: US <i class="uk-icon-close remove-selection"></i></div>
+            <div id="add-filter" class="add-btn uk-display-inline-block" data-uk-dropdown="{mode:'click'}">
                 <button class="uk-button uk-button-primary" type="button"><i class="uk-icon-plus"></i></button>
-                <!--<div class="uk-dropdown" style="width:400px; display: flex;">
-                    <div class="uk-display-inline-block" style="width:150px;">
-                        <br>
-                        <br>
-                        <br>
-                        <ul>
-                            <li class="uk-button" style="width:100%">deviceName</li>
-                            <li class="uk-button" style="width:100%">pageKey</li>
+                <div id="filter-panel" class="uk-dropdown" style="width:420px;">
+                    <div class="dimension-filter" style="width:150px;">
+                        <ul class="filter-dimension-list">
+                            <li class="filter-dimension-item" value="deviceName">deviceName</li>
+                            <li class="filter-dimension-item" value="pageKey">pageKey</li>
                         </ul>
                     </div>
+                    <div class="value-filter" rel="deviceName" style="display: none;">
+                        <label style="display: block;"><input class="select_all_checkbox" type="checkbox">Select All</label>
+                        <div class="filter-dimension-value-list uk-display-inline-block" style="width:250px;">
+                            <label class="filter-dimension-value-item" rel="deviceName" value="Desktop">
+                                <input class="filter-value-checkbox" type="checkbox" rel="deviceName" value="Desktop"> Desktop
+                            </label>
+                            <label class="filter-dimension-value-item"  rel="deviceName" value="Android">
+                                <input class="filter-value-checkbox" type="checkbox" rel="deviceName" value="Android"> Android
+                            </label>
+                            <label class="filter-dimension-value-item"  rel="deviceName" value="iPhone"">
+                                <input class="filter-value-checkbox" type="checkbox" rel="deviceName" value="iPhone"> iPhone
+                            </label>
+                            <label class="filter-dimension-value-item"  rel="deviceName" value="Tablet">
+                                <input class="filter-value-checkbox" type="checkbox" rel="deviceName" value="Tablet"> Tablet
+                            </label>
+                        </div>
+                    </div>
 
-                    <div class="value-filter" rel="deviceName" style="margin:10px 5px 0px 5px; line-height: 30px; width:245px;">
-
-                        <input class="panel-dimension-option select_all_checkbox" type="checkbox"><label>Select All</label>
-                        <ul class="filter-selector-dimension-value-list uk-display-inline-block" style="background: #fff; vertical-align: top; border: 1px solid #ccc; height:200px; overflow-y: scroll; width: 100%;">
-                            <li style="overflow:hidden; line-height:30px; border-bottom: 1px solid #ddd; padding-left:5px;" rel="deviceName" value="Desktop">
-                                <input class="panel-dimension-option" type="checkbox" rel="deviceName" value="Desktop"> Desktop
-                            </li>
-                            <li style="overflow:hidden; line-height:30px; border-bottom: 1px solid #ddd; padding-left:5px;" rel="deviceName" value="Android">
-                                <input class="panel-dimension-option" type="checkbox" rel="deviceName" value="Android"> Android
-                            </li>
-                            <li style="overflow:hidden; line-height:30px; border-bottom: 1px solid #ddd; padding-left:5px; rel="deviceName" value="iPhone"">
-                                <input class="panel-dimension-option" type="checkbox" rel="deviceName" value="iPhone"> iPhone
-                            </li>
-                            <li style="overflow:hidden; line-height:30px; border-bottom: 1px solid #ddd; padding-left:5px;" rel="deviceName" value="Tablet">
-                                <input class="panel-dimension-option" type="checkbox" rel="deviceName" value="Tablet"> Tablet
-                            </li>
-                        </ul>
-                    </div>-->
-
+                    <div class="value-filter" rel="pageKey" style="display: none;">
+                        <label style="display: block;"><input class="filter_select_all_checkbox" type="checkbox" rel="pageKey">Select All</label>
+                        <div class="filter-dimension-value-list uk-display-inline-block" style="width:250px;">
+                            <label class="filter-dimension-value-item" rel="pageKey" value="abook-import0impression-submit">
+                                <input class="filter-value-checkbox" type="checkbox" rel="pageKey" value="abook-import0impression-submit"> abook-import0impression-submit
+                            </label>
+                            <label class="filter-dimension-value-item" rel="pageKey" value="Android">
+                                <input class="filter-value-checkbox" type="checkbox" rel="pageKey" value="?">Other
+                            </label>
+                        </div>
+                    </div>
+                    <button id="apply-filter-btn" class="uk-button uk-btn-primary" style="float:right; margin: 5px;">Apply</button>
                 </div>
         </li>
         <li class="dashboard-settings-li">
@@ -157,7 +164,6 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="uk-display-inline-block time-form-item">
                         <button type="button" id="time-input-form-submit" class="uk-button uk-button-primary ">Go</button>
                     </div>

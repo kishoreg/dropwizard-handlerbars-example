@@ -110,7 +110,6 @@ $(document).ready(function() {
         })
     }
 
-    // getData("data/getdataset.json").done( function(data){
     getData("/dashboard/data?type=dataset" + window.location.hash).done( function(data){
         /* Handelbars template for collections dropdown */
         var result_collections_template = template_collections(data);
@@ -459,7 +458,7 @@ $(document).ready(function() {
 
     /** Eventlisteners **/
     $("#overview-btn").on("click", function(){
-        // getData("data/getmetrics.json").done(function(data){
+
 
         getData("/dashboard/data?type=metrics" + window.location.hash).done(function(data){
 
@@ -810,17 +809,18 @@ $(document).ready(function() {
         }
     })
 
-    $(".chart-selections").on("click","button",function(){
+    //view-type selection
+    $(".view-type-options").on("click","li",function(){
         if(!$(this).hasClass("uk-active")) {
-            $(this).siblings().removeClass("uk-active")
-            $(this).addClass("uk-active")
+            $(this).siblings().removeClass("uk-active");
+            $(this).addClass("uk-active");
         }
     })
 
     $("#display-chart-section").on("click","#sum-detail button",function(){
         if(!$(this).hasClass("uk-active")) {
-            $(this).siblings().removeClass("uk-active")
-            $(this).addClass("uk-active")
+            $(this).siblings().removeClass("uk-active");
+            $(this).addClass("uk-active");
         }
     })
 
@@ -828,25 +828,83 @@ $(document).ready(function() {
 
 
     var hash = parseHashParameters(window.location.hash);
-    $(".dashboard-settings-li").on("click", "li:not('.uk-button')", function(){
-        console.log("dashboard-settings-li clicked")
-        var param = $(this).attr("rel")
+    $(".dashboard-settings-li").on("click", "li:not('.filter-dimension-item')", function(){
+
+        var param = $(this).attr("rel");
         var value = $(this).attr("value");
 
         if($(this).closest("ul").hasClass("single-select")){
              hash[param] = value;
 
         }else{
-           //Multicelect will create an array
+           //Multicelect will create an array for the values
+
+            //if key doesn't exist
            if(!hash[param]){
-               hash[param] = [value]
+               hash[param] = [value];
+
+           //if key exist and value is not part of the array
            }else if( hash[param].indexOf(value) < 0){
                hash[param] =  hash[param] +","+ value;
            }
         }
-        console.log(hash);
+
+        console.log(hash)
         window.location.hash = encodeHashParameters(hash);
         return false
+    })
+
+    /*$("#add-filter").on("click", ".filter-dimension-value-item", function(){
+        var param = $(this).attr("rel");
+        var value = $(this).attr("value");
+        var filters = {};
+
+        if(!filters[param]){
+            filters[param] =  [value];
+        }else if( filters[param].indexOf(value) < 0){
+            filters[param] =  filters[param] +","+ value;
+        }
+        console.log(filters)
+        //window.location.hash = encodeHashParameters(hash);
+        return false
+    })*/
+
+    $("#apply-filter-btn").click(function(){
+        var filters = {};
+        $(".filter-value-checkbox").each(function(i, checkbox) {
+            var checkboxObj = $(checkbox);
+
+            if (checkboxObj.is(':checked')) {
+                var key = $(checkbox).attr("rel");
+                var value = $(checkbox).attr("value");
+
+                if(filters[key]){
+                    filters[key].push(value) ;
+                }else{
+                    filters[key] = [value];
+                }
+            }
+        });
+        for (k in filters){
+            filters[k] = encodeURIComponent(filters[k]);
+        }
+        hash.filters = encodeURIComponent(JSON.stringify(filters));
+        window.location.hash = encodeHashParameters(hash);
+
+        //console.log("encode filters", encodeHashParameters(hash));
+    })
+
+    $("#dashboard-header").on("click",".remove-selection", function(){
+        console.log("btn-close click");
+        console.log("this", this);
+        this.parentNode.style.display = 'none';
+    })
+
+    //Toggle dimension values selector list based on selected dimension
+    $("#filter-panel").on("click", ".filter-dimension-item", function(){
+        $(".value-filter").hide();
+        var dimension= $(this).attr("value")
+        $(".value-filter[rel="+ dimension +" ]").show();
     })
 
     //Set initial view
