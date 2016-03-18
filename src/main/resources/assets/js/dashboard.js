@@ -861,6 +861,9 @@ $(document).ready(function() {
         window.location.hash = encodeHashParameters(hash);
         if($(this).hasClass("collection-option")){
             getDataSet()
+        }else if($(this).hasClass("dashboard-option")){
+            var url="/dashboard/data?" + window.location.hash.substring(1);
+            getDataSet()
         }
         return false
     })
