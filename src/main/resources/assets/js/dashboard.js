@@ -464,7 +464,7 @@ $(document).ready(function() {
 
     /** Eventlisteners **/
 
-    $("#overview-btn").on("click", function(){
+    function getOverview(){
 
         var url = "/dashboard/data?type=metrics" + "&" + window.location.hash.substring(1);
         getData(url).done(function(data){
@@ -492,11 +492,10 @@ $(document).ready(function() {
             });
             $($(".time-series-metric-checkbox")[0]).click();
         });
-    })
+    }
 
     //Contributors section
-    $("#contributors-btn").on("click", function(){
-
+    function getContributors(){
 
         var url="/dashboard/data?type=metrics" + "&" + window.location.hash.substring(1)
         getData(url).done(function(data) {
@@ -617,10 +616,10 @@ $(document).ready(function() {
             });
 
         });
-    })
+    }
 
     //Treemap section
-    $("#heatmap-btn").on("click", function(){
+    function getHeatmap(){
 
         var url="/dashboard/data?type=treemaps" + "&" + window.location.hash.substring(1);
         getData(url).done(function(data) {
@@ -782,7 +781,7 @@ $(document).ready(function() {
             $(".dimension-treemap-mode[mode = '0']").click()
 
         });
-    })
+    };
 
     //Eventlisteners
     $("#dashboard-header").on("click","a[href='#']", function(){
@@ -859,18 +858,29 @@ $(document).ready(function() {
            }
         }
         window.location.hash = encodeHashParameters(hash);
+
         if($(this).hasClass("collection-option")){
             getDataSet()
-        }else if($(this).hasClass("dashboard-option")){
-            var url="/dashboard/data?" + window.location.hash.substring(1);
-            getDataSet()
+        }else if($(this).hasClass("dashboard-option") || $(this).hasClass("viewtype-option") ){
+            switch(hash.viewtype){
+
+                case "heatmap":
+                    getHeatmap();
+                break;
+                case "contributors":
+                    getContributors();
+                break;
+                default:
+                    getOverview();
+                    break;
+
+
+            }
         }
         return false
     })
 
     $("#dashboard-header").on("click",".remove-selection", function(){
-        console.log("btn-close click");
-        console.log("this", this);
         this.parentNode.style.display = 'none';
     })
 

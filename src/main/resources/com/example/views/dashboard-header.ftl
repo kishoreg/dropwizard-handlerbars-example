@@ -41,7 +41,7 @@
                 <div class="uk-dropdown uk-dropdown-small uk-dropdown-bottom" style="top: 30px; left: 0px;">
                     <ul class="uk-nav uk-nav-dropdown single-select">
                         <li class="dashboard-option" rel="dashboard" value="Primary_Metric_View"><a href="#">Primary_Metric_View</a></li>
-                        <li class="dashboard-option" rel="dashboard" value="Member_2_Member_Full_Funnel"><a href="#"></a>Member_2_Member_Full_Funnel</li>
+                        <li class="dashboard-option" rel="dashboard" value="Member_2_Member_Full_Funnel"><a href="#">Member_2_Member_Full_Funnel</a></li>
                         <li class="dashboard-option" rel="dashboard" value="Member_2_Guest_Full_Funnel"><a href="#">Member_2_Guest_Full_Funnel</a></li>
                     </ul>
                 </div>
